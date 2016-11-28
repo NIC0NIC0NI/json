@@ -2,11 +2,10 @@
 A simple JSON parser in Rust. Practice purpose.
 
 ### Use
-An example in src/test.rs
+An example in tests/basic.rs
 ```
-    use super::{JSON, JSONValue};
+    use json::JSON;
     use std::str::FromStr;
-    use std::collections::HashMap;
 
     let json_obj = json_object!(
         {name : "Element", items : [1, 2, 3, false, true, {something : null}]}

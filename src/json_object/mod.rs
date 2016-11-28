@@ -1,8 +1,11 @@
 mod json_value;
-pub use self::json_value::JSONValue;
 
 use ::std::collections::HashMap;
 use ::std::fmt::{Display,Debug,Formatter,Result as FmtResult};
+
+pub trait JSONValue {
+    fn to_json(self) -> JSON;
+}
 
 pub type NameValuePair = HashMap<String, JSON>;
 
@@ -68,7 +71,7 @@ impl Debug for JSON{
                     if first {
                         first = false;
                     } else {
-                        try!(write!(f, ","));
+                        try!(write!(f, ", "));
                     }
                     try!(write!(f, "\"{:?}\":{:?}", name, value));
                 }
@@ -81,7 +84,7 @@ impl Debug for JSON{
                     if first {
                         first = false;
                     } else {
-                        try!(write!(f, ","));
+                        try!(write!(f, ", "));
                     }
                     try!(write!(f, "{:?}", item));
                 }
@@ -115,7 +118,7 @@ impl PartialEq for JSON {
             },
             &JSON::JSONString(ref s1) => {
                 match other {
-                    &JSON::JSONString(ref s2) => s1 == s2 as &str,
+                    &JSON::JSONString(ref s2) => s1 == s2,
                     _ => false
                 }
             },
@@ -140,5 +143,4 @@ impl PartialEq for JSON {
         }
     }
 }
-
 

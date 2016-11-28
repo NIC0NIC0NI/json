@@ -1,8 +1,6 @@
 use super::JSON;
+use super::JSONValue;
 
-pub trait JSONValue {
-    fn to_json(self) -> JSON;
-}
 
 impl <'arbitrary> JSONValue for &'arbitrary str {
     fn to_json(self) -> JSON{

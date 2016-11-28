@@ -1,7 +1,14 @@
 mod match_char;
+#[cfg(test)]
+mod test;
+
+//use std::mem::swap;
 
 use super::TokenConsumer;
+use super::Tokenizer;
+use super::IntoJSON;
 use super::Error as TokenizeError;
+use ::JSON;
 
 use self::match_char::match_in_string;
 use self::match_char::match_in_string_escape;
@@ -18,11 +25,11 @@ pub enum State <Consumer> {
     Error (TokenizeError)
 }
 
-impl <TC:TokenConsumer> State <TC> {
-    pub fn new() -> Self {
+impl <TC:TokenConsumer> Tokenizer for State <TC> {
+    fn new() -> Self {
         State::Out (TC::new())
     }
-    pub fn tokenize(self, c: char) -> Self {
+    fn tokenize(self, c: char) -> Self {
         match self {
             State::InString(consumer, word) => 
                 match_in_string(c, consumer, word),
@@ -35,6 +42,16 @@ impl <TC:TokenConsumer> State <TC> {
             State::Out(consumer) => 
                 match_out(c, consumer),
             error => error,
+        }
+    }
+}
+
+impl <I:IntoJSON>  IntoJSON for State<I> {
+    fn into_json(self) -> Result<JSON, TokenizeError> {
+        match self {
+            State::Out(i) => i.into_json(),
+            State::Error(msg) => Err(msg),
+            _ => Err("Unmatched quotes".to_string())
         }
     }
 }

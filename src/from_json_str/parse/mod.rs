@@ -1,7 +1,10 @@
 mod match_token;
+#[cfg(test)]
+mod test;
 
 use super::TokenConsumer;
 use super::JSONToken;
+use super::IntoJSON;
 use super::Error as ParseError;
 use super::super::json_object::JSON;
 use super::super::json_object::NameValuePair;
@@ -32,7 +35,7 @@ pub enum State {
     ArrayWithValue(Vec<NestedLevel>, Vec<JSON>),
     ArrayWithComma(Vec<NestedLevel>, Vec<JSON>),
     End(JSON),
-    Error(ParseError)
+    Error(ParseError),
 }
 
 impl State {
@@ -72,12 +75,38 @@ impl TokenConsumer for State {
     }
 }
 
-impl TokenConsumer for Box<State> {
-    fn new() -> Self {
-        Box::new(State::Begin)
-    }
-    fn consume(self, token: JSONToken) -> Self {
-        Box::new((*self).parse_token(token))
+impl Default for State {
+    fn default() -> Self {
+        State::Begin
     }
 }
 
+impl IntoJSON for State {
+    fn into_json(self) -> Result<JSON, ParseError> {
+        match self {
+            State::End(json) => Ok(json),
+            State::Error(error) => Err(error),
+            State::Begin => Err("Empty string".to_string()),
+            State::ObjectBegin(_, _) | State::ObjectWithName(_, _, _) | 
+                State::ObjectWithColon(_, _, _) | State::ObjectWithValue(_, _) |
+                    State::ObjectWithComma(_, _) => Err("Unmatched braces".to_string()),
+            State::ArrayBegin(_, _) | State::ArrayWithValue(_, _) |
+                State::ArrayWithComma(_, _) => Err("Unmatched brackets".to_string()),
+        }
+    }
+}
+
+
+
+/*
+/// Unused
+impl TokenConsumer for State {
+    fn new() -> Self {
+        State::Begin
+    }
+
+    fn consume(self, token: JSONToken) -> Self {
+        self.parse_token(token)
+    }
+}
+*/

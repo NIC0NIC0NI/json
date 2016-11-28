@@ -5,4 +5,9 @@ authors = ["NIC0NIC0NI <liukan1012@163.com>"]
 
 [dependencies]
 
+[dev-dependencies]
+bencher = "0.1.1"
 
+[[bench]]
+name = "basic"
+harness = false
