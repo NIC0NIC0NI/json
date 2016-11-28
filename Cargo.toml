@@ -5,6 +5,10 @@ authors = ["NIC0NIC0NI <liukan1012@163.com>"]
 
 [dependencies]
 
+
+
+# I'm using the stable version of Rust and I cannot get test::Bencher
+# This dependency will be removed once test::Bencher is stabilized or I decide to use nightly version.
 [dev-dependencies]
 bencher = "0.1.1"
 

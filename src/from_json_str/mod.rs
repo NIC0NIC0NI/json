@@ -21,6 +21,7 @@ pub fn tokenize_str<T:Tokenizer>(s: &str) -> T {
     s.chars().fold(parse_state, T::tokenize).tokenize(' ')
 }
 
+/// Used in self::tokenize
 pub trait TokenConsumer {
     fn new() -> Self;
     fn consume(self, token: JSONToken) -> Self; 
@@ -40,6 +41,7 @@ impl <TC:TokenConsumer+Default> TokenConsumer for Box<TC> {
     }
 }
 
+/// Used in super
 pub trait IntoJSON {
     fn into_json(self) -> Result<JSON, Error>;
 }
