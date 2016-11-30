@@ -2,7 +2,7 @@
 use super::super::TokenConsumer;
 use super::super::Tokenizer;
 use super::super::JSONToken;
-use super::super::Error;
+use super::super::ParseError as Error;
 use super::State;
 
 
@@ -23,7 +23,7 @@ fn tokenize_str<TC:TokenConsumer>(json_str: &str) -> Result<TC,Error> {
     match result {
         State::Out (consumer) => Ok(consumer),
         State::Error (error) => Err(error),
-        _ => Err("Unbalanced quotes ".to_string())
+        _ => Err("Unbalanced quotes ".into())
     }
 }
 

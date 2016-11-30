@@ -4,7 +4,6 @@ extern crate json;
 use bencher::Bencher;
 
 use json::JSON;
-use std::str::FromStr;
 
 benchmark_group!(benches, basic, dence_tokens);
 benchmark_main!(benches);
@@ -32,7 +31,7 @@ fn basic(b: &mut Bencher) {
         }
     );
     b.iter(|| {
-        JSON::from_str(json_str)
+        json_str.parse::<JSON>()
     })
 }
 
@@ -80,6 +79,6 @@ fn dence_tokens(b: &mut Bencher) {
     // remove white spaces 
     let json_str = &s.chars().filter(|c| !c.is_whitespace()).collect::<String>();
     b.iter(|| {
-        JSON::from_str(json_str)
+        json_str.parse::<JSON>()
     })
 }

@@ -1,10 +1,26 @@
 extern crate json;
 
 use json::JSON;
-use std::str::FromStr;
 
 #[test]
-fn it_checks_simple_syntax_error() {
+fn it_checks_simple_syntax_error_1() {
+    let json_str = stringify!(
+        {
+            "name" : "Element",
+            "items" :
+            [
+                1, 2, 3, false  true, 
+                {
+                    "something" : null
+                }
+            ]
+        }
+    );
+    assert!(json_str.parse::<JSON>().is_err());
+}
+
+#[test]
+fn it_checks_simple_syntax_error_2() {
     let json_str = stringify!(
         {
             "name" : "Element",
@@ -17,10 +33,7 @@ fn it_checks_simple_syntax_error() {
             ]
         }
     );
-    match JSON::from_str(json_str){
-        Ok(_) => panic!("Unable to find out syntax errors."),
-        Err(_) => ()
-    }
+    assert!(json_str.parse::<JSON>().is_err());
 }
 
 #[test]
@@ -37,53 +50,35 @@ fn it_checks_miss_typing() {
             ]
         }
     );
-    match JSON::from_str(json_str){
-        Ok(_) => panic!("Unable to find out syntax errors."),
-        Err(_) => ()
-    }
+    assert!(json_str.parse::<JSON>().is_err());
 }
 
 #[test]
 fn it_checks_unbalanced_quote() {
-    // unbalanced braces won't compile if using stringfy!
+    // unbalanced quotes won't compile if using stringfy!
     let json_str1 = "{\"name\" : \"Element,\"items\" :[1, 2, 3, false, ture, {\"something\" : null , false]}";
-    match JSON::from_str(json_str1){
-        Ok(_) => panic!("Unable to find out syntax errors."),
-        Err(_) => ()
-    };
     let json_str2 = "{\"name\" : \"Element\", items\" :[1, 2, 3, false, ture, {\"something\" : null , false]}";
-    match JSON::from_str(json_str2){
-        Ok(_) => panic!("Unable to find out syntax errors."),
-        Err(_) => ()
-    }
+
+    assert!(json_str1.parse::<JSON>().is_err());
+    assert!(json_str2.parse::<JSON>().is_err());
 }
 
 #[test]
 fn it_checks_unbalanced_brace() {
     // unbalanced braces won't compile if using stringfy!
     let json_str1 = "{\"name\" : \"Element\",\"items\" :[1, 2, 3, false, ture, {\"something\" : null , false]}";
-    match JSON::from_str(json_str1){
-        Ok(_) => panic!("Unable to find out syntax errors."),
-        Err(_) => ()
-    };
-    let json_str1 = "\"name\" : \"Element\",\"items\" :[1, 2, 3, false, ture, {\"something\" : null} , false]}";
-    match JSON::from_str(json_str1){
-        Ok(_) => panic!("Unable to find out syntax errors."),
-        Err(_) => ()
-    }
+    let json_str2 = "\"name\" : \"Element\",\"items\" :[1, 2, 3, false, ture, {\"something\" : null} , false]}";
+
+    assert!(json_str1.parse::<JSON>().is_err());
+    assert!(json_str2.parse::<JSON>().is_err());
 }
 
 #[test]
 fn it_checks_unbalanced_bracket() {
     // unbalanced brackets won't compile if using stringfy!
-    let json_str = "{\"name\" : \"Element\",\"items\" :[1, 2, 3, false, ture, {\"something\" : null}}";
-    match JSON::from_str(json_str){
-        Ok(_) => panic!("Unable to find out syntax errors."),
-        Err(_) => ()
-    };
-    let json_str = "{\"name\" : \"Element\",\"items\" :[1, 2, false, {\"something\" : null}], \"something\": 12]}";
-    match JSON::from_str(json_str){
-        Ok(_) => panic!("Unable to find out syntax errors."),
-        Err(_) => ()
-    }
+    let json_str1 = "{\"name\" : \"Element\",\"items\" :[1, 2, 3, false, ture, {\"something\" : null}}";
+    let json_str2 = "{\"name\" : \"Element\",\"items\" :[1, 2, false, {\"something\" : null}], \"something\": 12]}";
+
+    assert!(json_str1.parse::<JSON>().is_err());
+    assert!(json_str2.parse::<JSON>().is_err());
 }

@@ -1,14 +1,28 @@
-mod json_value;
+#[macro_use]
+mod macros;
+mod cast_from_json;
+mod cast_to_json;
 
 use ::std::collections::HashMap;
 use ::std::fmt::{Display,Debug,Formatter,Result as FmtResult};
 
-pub trait JSONValue {
-    fn to_json(self) -> JSON;
-}
-
 pub type NameValuePair = HashMap<String, JSON>;
 
+/// The type that represents a JSON object.
+/// Has implemented `FromStr` trait thus is able to parse from string.
+/// # Examples
+/// ```
+/// extern crate json;
+/// use json::JSON;
+/// fn main(){
+///     let json_str = stringify!(
+///         { "first_property" : "good", "second_property" : [1, 2, 3, false, null]} 
+///     );
+///     if let Ok(json) = json_str.parse::<JSON>() {
+///         println!("{}", json.to_string());
+///     }
+/// }
+/// ```
 pub enum JSON {
     JSONBool(bool),
     JSONInt(i64),
@@ -17,6 +31,11 @@ pub enum JSON {
     JSONArray(Vec<JSON>),
     JSONObject(NameValuePair),
     JSONNull
+}
+
+/// Convert rust primitive types to JSON.
+pub trait IntoJSON {
+    fn into_json(self) -> JSON;
 }
 
 impl Display for JSON {

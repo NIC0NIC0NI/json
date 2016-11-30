@@ -5,7 +5,7 @@ use super::NestedLevel;
 use super::State;
 
 fn token_error(token: JSONToken) -> State {
-    State::Error(format!("Unexpected token {}", token))
+    State::Error(format!("Unexpected token {}", token).into())
 }
 
 fn end_nested(mut nested: Vec<NestedLevel>, json: JSON) -> State {

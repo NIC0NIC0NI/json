@@ -4,6 +4,7 @@ use ::std::str::FromStr;
 use super::State;
 use super::super::JSONToken;
 use super::super::TokenConsumer;
+use super::super::ParseError as Error;
 
 enum Escape {
     Character(char),
@@ -35,7 +36,7 @@ pub fn match_in_string<TC:TokenConsumer>(c: char, consumer: TC, mut word: String
         cx if cx.is_control() => State::Error(format!(
             "Unexpected control character, use '{}' instead", 
             c.escape_default().collect::<String>()
-        )),
+        ).into()),
         x => {
             word.push(x);
             State::InString(consumer, word)
@@ -61,7 +62,7 @@ pub fn match_in_string_escape<TC:TokenConsumer>(c: char, consumer: TC, mut word:
             word.push(cc);
             State::InString(consumer, word)
         },
-        Escape::Error => State::Error("Invalid escape character".to_string()),
+        Escape::Error => State::Error("Invalid escape character".into()),
         Escape::Unicode => State::InStringEscapeUnicode(consumer, word, String::with_capacity(4))
     }
 }
@@ -74,20 +75,20 @@ pub fn match_in_string_escape_unicode<TC:TokenConsumer>(c: char, consumer: TC,
                 word.push(character);
                 match_in_string(c, consumer, word)
             } else {
-                State::Error(format!("Unexpected unicode escape: \\u{}", escape))
+                State::Error(format!("Unexpected unicode escape: \\u{}", escape).into())
             }
         } else {
-            State::Error(format!("Unexpected unicode escape: \\u{}", escape))
+            State::Error(format!("Unexpected unicode escape: \\u{}", escape).into())
         }
     } else if c.is_digit(16) {
         escape.push(c);
         State::InStringEscapeUnicode(consumer, word, escape)
     } else {
-        State::Error(format!("Unexpected unicode escape: \\u{}", escape))
+        State::Error(format!("Unexpected unicode escape: \\u{}", escape).into())
     }
 }
 
-fn parse_value(s: &str) -> Result<JSONToken, String> {
+fn parse_value(s: &str) -> Result<JSONToken, Error> {
     match s {
         "true" => Ok(JSONToken::BoolToken(true)),
         "false" => Ok(JSONToken::BoolToken(false)),
@@ -98,7 +99,7 @@ fn parse_value(s: &str) -> Result<JSONToken, String> {
             } else if let Ok(f) = f64::from_str(s) {
                 Ok(JSONToken::FloatToken(f))
             } else {
-                Err(format!("Invalid value literal: {}" ,s))
+                Err(format!("Invalid value literal: {}" ,s).into())
             }
         }
     }

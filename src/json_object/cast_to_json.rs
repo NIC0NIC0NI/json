@@ -1,37 +1,35 @@
 use super::JSON;
-use super::JSONValue;
+use super::IntoJSON;
 
 
-impl <'arbitrary> JSONValue for &'arbitrary str {
-    fn to_json(self) -> JSON{
+impl <'arbitrary> IntoJSON for &'arbitrary str {
+    fn into_json(self) -> JSON{
         JSON::JSONString(self.to_string())
     }
 }
 
-impl JSONValue for String {
-    fn to_json(self) -> JSON{
+impl IntoJSON for String {
+    fn into_json(self) -> JSON{
         JSON::JSONString(self)
     }
 }
 
 macro_rules! type_map {
     ($rust_type: ty, $inter_type: ty, $json_type: ident) => {
-        impl JSONValue for $rust_type {
-            fn to_json(self) -> JSON{
-                $json_type(self as $inter_type)
+        impl IntoJSON for $rust_type {
+            fn into_json(self) -> JSON{
+                JSON::$json_type(self as $inter_type)
             }
         }
     };
     ($rust_type: ty, $json_type: ident) => {
-        impl JSONValue for $rust_type {
-            fn to_json(self) -> JSON{
-                $json_type(self)
+        impl IntoJSON for $rust_type {
+            fn into_json(self) -> JSON{
+                JSON::$json_type(self)
             }
         }
     };
 }
-
-use JSON::*;
 
 type_map!{bool, JSONBool}
 type_map!{i8, i64, JSONInt}

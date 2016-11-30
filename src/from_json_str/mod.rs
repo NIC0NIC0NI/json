@@ -2,6 +2,7 @@
 mod json_tokens;
 mod tokenize;
 mod parse;
+mod error;
 
 use std::mem::swap;
 pub use self::parse::State as ParseState;
@@ -9,16 +10,19 @@ pub use self::tokenize::State as TokenizeState;
 
 use super::json_object::JSON;
 
-pub type Error = String;
+/// Represents parse error
+pub struct ParseError {
+    description : String
+}
 
 pub trait Tokenizer {
     fn new() -> Self;
     fn tokenize(self, c: char) -> Self;
 }
 
-pub fn tokenize_str<T:Tokenizer>(s: &str) -> T {
+pub fn from_char_stream<T:Tokenizer, I:Iterator<Item=char>>(iter: I) -> T{
     let parse_state = T::new();
-    s.chars().fold(parse_state, T::tokenize).tokenize(' ')
+    iter.fold(parse_state, T::tokenize).tokenize(' ')
 }
 
 /// Used in self::tokenize
@@ -42,12 +46,12 @@ impl <TC:TokenConsumer+Default> TokenConsumer for Box<TC> {
 }
 
 /// Used in super
-pub trait IntoJSON {
-    fn into_json(self) -> Result<JSON, Error>;
+pub trait TryIntoJSON {
+    fn try_into_json(self) -> Result<JSON, ParseError>;
 }
-impl <I:IntoJSON> IntoJSON for Box<I> {
-    fn into_json(self) -> Result<JSON, Error> {
-        (*self).into_json()
+impl <I:TryIntoJSON> TryIntoJSON for Box<I> {
+    fn try_into_json(self) -> Result<JSON, ParseError> {
+        (*self).try_into_json()
     }
 }
 

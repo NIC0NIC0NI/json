@@ -1,7 +1,7 @@
 use super::State;
 use super::super::JSONToken;
 use super::super::TokenConsumer;
-use super::super::Error;
+use super::super::ParseError as Error;
 use ::JSON;
 
 fn parse_tokens(tokens: Vec<JSONToken>) -> Result<JSON,Error> {
@@ -10,12 +10,12 @@ fn parse_tokens(tokens: Vec<JSONToken>) -> Result<JSON,Error> {
     match result {
         State::End(json) => Ok(json),
         State::Error(error) => Err(error),
-        State::Begin => Err("Empty string".to_string()),
+        State::Begin => Err("Empty string".into()),
         State::ObjectBegin(_, _) | State::ObjectWithName(_, _, _) | 
             State::ObjectWithColon(_, _, _) | State::ObjectWithValue(_, _) |
-                State::ObjectWithComma(_, _) => Err("Unmatched braces".to_string()),
+                State::ObjectWithComma(_, _) => Err("Unmatched braces".into()),
         State::ArrayBegin(_, _) | State::ArrayWithValue(_, _) |
-            State::ArrayWithComma(_, _) => Err("Unmatched brackets".to_string()),
+            State::ArrayWithComma(_, _) => Err("Unmatched brackets".into()),
     }
 }
 

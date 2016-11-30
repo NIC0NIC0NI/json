@@ -4,8 +4,8 @@ mod test;
 
 use super::TokenConsumer;
 use super::JSONToken;
-use super::IntoJSON;
-use super::Error as ParseError;
+use super::TryIntoJSON;
+use super::ParseError;
 use super::super::json_object::JSON;
 use super::super::json_object::NameValuePair;
 
@@ -81,32 +81,17 @@ impl Default for State {
     }
 }
 
-impl IntoJSON for State {
-    fn into_json(self) -> Result<JSON, ParseError> {
+impl TryIntoJSON for State {
+    fn try_into_json(self) -> Result<JSON, ParseError> {
         match self {
             State::End(json) => Ok(json),
             State::Error(error) => Err(error),
-            State::Begin => Err("Empty string".to_string()),
+            State::Begin => Err("Empty string".into()),
             State::ObjectBegin(_, _) | State::ObjectWithName(_, _, _) | 
                 State::ObjectWithColon(_, _, _) | State::ObjectWithValue(_, _) |
-                    State::ObjectWithComma(_, _) => Err("Unmatched braces".to_string()),
+                    State::ObjectWithComma(_, _) => Err("Unmatched braces".into()),
             State::ArrayBegin(_, _) | State::ArrayWithValue(_, _) |
-                State::ArrayWithComma(_, _) => Err("Unmatched brackets".to_string()),
+                State::ArrayWithComma(_, _) => Err("Unmatched brackets".into()),
         }
     }
 }
-
-
-
-/*
-/// Unused
-impl TokenConsumer for State {
-    fn new() -> Self {
-        State::Begin
-    }
-
-    fn consume(self, token: JSONToken) -> Self {
-        self.parse_token(token)
-    }
-}
-*/

@@ -6,8 +6,8 @@ mod test;
 
 use super::TokenConsumer;
 use super::Tokenizer;
-use super::IntoJSON;
-use super::Error as TokenizeError;
+use super::TryIntoJSON;
+use super::ParseError as TokenizeError;
 use ::JSON;
 
 use self::match_char::match_in_string;
@@ -46,12 +46,12 @@ impl <TC:TokenConsumer> Tokenizer for State <TC> {
     }
 }
 
-impl <I:IntoJSON>  IntoJSON for State<I> {
-    fn into_json(self) -> Result<JSON, TokenizeError> {
+impl <I:TryIntoJSON>  TryIntoJSON for State<I> {
+    fn try_into_json(self) -> Result<JSON, TokenizeError> {
         match self {
-            State::Out(i) => i.into_json(),
+            State::Out(i) => i.try_into_json(),
             State::Error(msg) => Err(msg),
-            _ => Err("Unmatched quotes".to_string())
+            _ => Err("Unmatched quotes".into())
         }
     }
 }
