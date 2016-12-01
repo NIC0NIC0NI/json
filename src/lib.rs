@@ -12,11 +12,10 @@ use from_json_str::ParseState;
 use from_json_str::TryIntoJSON;
 use from_json_str::from_char_stream;
 
-/// Another version of FromIterator, may fail.
-pub trait TryFromIterator : Sized{
-    type Item;
+/// Another version of `FromIterator`, may fail.
+pub trait TryFromIterator<Item> : Sized{
     type Err;
-    fn try_from_iter<I:IntoIterator<Item=Self::Item>>(iter: I) -> Result<Self, Self::Err>;
+    fn try_from_iter<I:IntoIterator<Item=Item>>(iter: I) -> Result<Self, Self::Err>;
 }
 
 /// Boxing makes `size_of::<TokenConsumer>()` much smaller, faster in parameter passing
@@ -24,8 +23,7 @@ type TokenConsumer = Box<ParseState>;
 /// Boxing this makes more overhead than benefit
 type Tokenizer = TokenizeState<TokenConsumer>;
 
-impl TryFromIterator for JSON {
-    type Item = char;
+impl TryFromIterator<char> for JSON {
     type Err = ParseError;
     fn try_from_iter<I:IntoIterator<Item=char>>(iter: I) -> Result<Self, ParseError>  {
         let result: Tokenizer = from_char_stream(iter.into_iter());
