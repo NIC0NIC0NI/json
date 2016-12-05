@@ -4,7 +4,7 @@ mod tokenize;
 mod parse;
 mod error;
 
-use std::mem::swap;
+use std::mem::replace;
 pub use self::parse::State as ParseState;
 pub use self::tokenize::State as TokenizeState;
 
@@ -38,8 +38,7 @@ impl <TC:TokenConsumer+Default> TokenConsumer for Box<TC> {
         /// Original code:
         /// ```Box::new((*self).parse_token(token))```
         /// optimized for memory reuse
-        let mut placeholder = TC::default();  // use default to minimize construct overhead
-        swap(&mut(*self), &mut placeholder);
+        let placeholder = replace(&mut(*self), TC::default());  // use default to minimize construct overhead
         *self = placeholder.consume(token);
         self
     }
