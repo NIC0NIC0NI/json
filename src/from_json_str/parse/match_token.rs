@@ -1,3 +1,5 @@
+//! Describes the state transition
+
 use super::super::super::json_object::JSON;
 use super::super::super::json_object::NameValuePair;
 use super::super::JSONToken;
@@ -29,11 +31,11 @@ pub fn match_begin(token:JSONToken) -> State{
     match token {
         JSONToken::LeftBrace => State::ObjectBegin(Vec::new(), NameValuePair::new()),
         JSONToken::LeftBracket => State::ArrayBegin(Vec::new(), Vec::new()),
-        JSONToken::StringToken(s) => State::End(JSON::JSONString(s)),
-        JSONToken::BoolToken(b) => State::End(JSON::JSONBool(b)),
-        JSONToken::IntToken(i) => State::End(JSON::JSONInt(i)),
-        JSONToken::FloatToken(f) => State::End(JSON::JSONFloat(f)),
-        JSONToken::NullToken => State::End(JSON::JSONNull),
+        JSONToken::StringToken(s) => State::End(JSON::String(s)),
+        JSONToken::BoolToken(b) => State::End(JSON::Bool(b)),
+        JSONToken::IntToken(i) => State::End(JSON::Int(i)),
+        JSONToken::FloatToken(f) => State::End(JSON::Float(f)),
+        JSONToken::NullToken => State::End(JSON::Null),
         unexpected => token_error(unexpected)
     }
 }
@@ -41,7 +43,7 @@ pub fn match_begin(token:JSONToken) -> State{
 pub fn match_object_begin(token:JSONToken, nested: Vec<NestedLevel>, object: NameValuePair) -> State{
     match token {
         JSONToken::StringToken(name) => State::ObjectWithName(nested, object, name),
-        JSONToken::RightBrace => end_nested(nested, JSON::JSONObject(object)),
+        JSONToken::RightBrace => end_nested(nested, JSON::Object(object)),
         unexpected => token_error(unexpected)
     }
 }
@@ -76,7 +78,7 @@ pub fn match_object_with_colon(token:JSONToken, mut nested: Vec<NestedLevel>, mu
 pub fn match_object_with_value(token:JSONToken, nested: Vec<NestedLevel>, object: NameValuePair) -> State{
     match token {
         JSONToken::Comma => State::ObjectWithComma(nested, object),
-        JSONToken::RightBrace => end_nested(nested, JSON::JSONObject(object)),
+        JSONToken::RightBrace => end_nested(nested, JSON::Object(object)),
         unexpected => token_error(unexpected)
     }
 }
@@ -103,7 +105,7 @@ pub fn match_array_begin(token:JSONToken, mut nested: Vec<NestedLevel>, mut arra
                 nested.push(NestedLevel::Array(array));
                 State::ArrayBegin(nested, Vec::new())
             },
-            JSONToken::RightBracket => end_nested(nested, JSON::JSONArray(array)),
+            JSONToken::RightBracket => end_nested(nested, JSON::Array(array)),
             unexpected => token_error(unexpected)
         }
     }
@@ -112,7 +114,7 @@ pub fn match_array_begin(token:JSONToken, mut nested: Vec<NestedLevel>, mut arra
 pub fn match_array_with_value(token:JSONToken, nested: Vec<NestedLevel>, array: Vec<JSON>) -> State{
     match token {
         JSONToken::Comma => State::ArrayWithComma(nested, array),
-        JSONToken::RightBracket => end_nested(nested, JSON::JSONArray(array)),
+        JSONToken::RightBracket => end_nested(nested, JSON::Array(array)),
         unexpected => token_error(unexpected)
     }
 }

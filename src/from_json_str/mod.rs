@@ -1,10 +1,13 @@
 #[macro_use]
-mod json_tokens;
+#[cfg(test)]
+mod json_token;
 mod tokenize;
 mod parse;
 mod error;
 
 use std::mem::replace;
+use ::std::fmt::{Display, Formatter, Result as FmtResult};
+
 pub use self::parse::State as ParseState;
 pub use self::tokenize::State as TokenizeState;
 
@@ -54,6 +57,7 @@ impl <I:TryIntoJSON> TryIntoJSON for Box<I> {
     }
 }
 
+#[derive(PartialEq, Debug)]
 pub enum JSONToken {
     LeftBrace,
     RightBrace,
@@ -79,12 +83,30 @@ impl JSONToken {
     }
     fn into_primitive_value(self) -> Option<JSON> {
         match self {
-            JSONToken::StringToken(s) => Some(JSON::JSONString(s)),
-            JSONToken::BoolToken(b) => Some(JSON::JSONBool(b)),
-            JSONToken::IntToken(i) => Some(JSON::JSONInt(i)),
-            JSONToken::FloatToken(f) => Some(JSON::JSONFloat(f)),
-            JSONToken::NullToken => Some(JSON::JSONNull),
+            JSONToken::StringToken(s) => Some(JSON::String(s)),
+            JSONToken::BoolToken(b) => Some(JSON::Bool(b)),
+            JSONToken::IntToken(i) => Some(JSON::Int(i)),
+            JSONToken::FloatToken(f) => Some(JSON::Float(f)),
+            JSONToken::NullToken => Some(JSON::Null),
             _ => None
+        }
+    }
+}
+
+impl Display for JSONToken {
+    fn fmt(&self, f: &mut Formatter) -> FmtResult {
+        match self {
+            &JSONToken::LeftBrace => write!(f, "{{"),
+            &JSONToken::RightBrace => write!(f, "}}"),
+            &JSONToken::LeftBracket => write!(f, "["),
+            &JSONToken::RightBracket => write!(f, "]"),
+            &JSONToken::Comma => write!(f, ", "),
+            &JSONToken::Colon => write!(f, ": "),
+            &JSONToken::StringToken(ref s) => write!(f, "\"{}\"", s),
+            &JSONToken::BoolToken(s) => write!(f, "{}", s),
+            &JSONToken::IntToken(s) => write!(f, "{}", s),
+            &JSONToken::FloatToken(s) => write!(f, "{}", s),
+            &JSONToken::NullToken => write!(f, "null")
         }
     }
 }

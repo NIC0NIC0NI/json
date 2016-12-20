@@ -17,23 +17,27 @@ macro_rules! json_object {
         $(
             vector.push(json_object!($item));
         )*
-        $crate::JSON::JSONArray(vector)
+        $crate::JSON::Array(vector)
     }};
+    // specialized in order to get rid of "unused mutable" warning
     ( [] ) => {{
-        $crate::JSON::JSONArray(Vec::new())
+        $crate::JSON::Array(Vec::new())
     }};
+
     ( {$($name:ident : $value:tt),+} ) => {{
         let mut hash_map = ::std::collections::HashMap::new();
         $(
             hash_map.insert(stringify!($name).to_string(), json_object!($value));
         )*
-        $crate::JSON::JSONObject(hash_map)
+        $crate::JSON::Object(hash_map)
     }};
+    // get rid of warning
     ( {} ) => {{
-        $crate::JSON::JSONObject(::std::collections::HashMap::new())
+        $crate::JSON::Object(::std::collections::HashMap::new())
     }};
+
     (null) => {
-        $crate::JSON::JSONNull
+        $crate::JSON::Null
     };
     ($x:expr) => {
         $crate::IntoJSON::into_json($x)

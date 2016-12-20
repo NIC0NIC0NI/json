@@ -2,10 +2,10 @@ use super::JSON;
 use super::NameValuePair;
 
 macro_rules! is_type {
-    ($fn_name:ident, JSONNull) => {
+    ($fn_name:ident, Null) => {
         pub fn $fn_name(&self) -> bool {
             match self {
-                &JSON::JSONNull => true,
+                &JSON::Null => true,
                 _ => true
             }
         }
@@ -72,29 +72,21 @@ impl JSON {
     /// Boolean, integer, floating point number or string
     pub fn is_primitive(&self) -> bool {
         match self {
-            &JSON::JSONArray(_) | &JSON::JSONObject(_) | &JSON::JSONNull => false,
+            &JSON::Array(_) | &JSON::Object(_) | &JSON::Null => false,
             _ => true
         }
     }
-    is_type!{is_null, JSONNull}
-    is_type!{is_integer, JSONInt}
-    is_type!{is_float, JSONFloat}
-    is_type!{is_bool, JSONBool}
-    is_type!{is_string, JSONString}
-    is_type!{is_array, JSONArray}
-    is_type!{is_object, JSONObject}
-    to_premitive!{as_i64, i64, JSONInt}
-    to_premitive!{as_f64, f64, JSONFloat}
-    to_premitive!{as_bool, bool, JSONBool}
-    to_object!{as_str, into_string, String, JSONString}
-    to_object!{as_vec, into_vec, Vec<JSON>, JSONArray}
-    to_object!{as_map, into_map, NameValuePair, JSONObject}
+    is_type!{is_null, Null}
+    is_type!{is_integer, Int}
+    is_type!{is_float, Float}
+    is_type!{is_bool, Bool}
+    is_type!{is_string, String}
+    is_type!{is_array, Array}
+    is_type!{is_object, Object}
+    to_premitive!{as_i64, i64, Int}
+    to_premitive!{as_f64, f64, Float}
+    to_premitive!{as_bool, bool, Bool}
+    to_object!{as_str, into_string, String, String}
+    to_object!{as_vec, into_vec, Vec<JSON>, Array}
+    to_object!{as_map, into_map, NameValuePair, Object}
 }
-/*
-JSONBool(bool),
-            JSONInt(i64),
-            JSONFloat(f64),
-            JSONString(String),
-            JSONArray(Vec<JSON>),
-            JSONObject(NameValuePair),
-            JSONNull*/

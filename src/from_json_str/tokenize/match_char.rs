@@ -1,3 +1,5 @@
+//! Describes the state transition
+
 use ::std::char::from_u32;
 use ::std::str::FromStr;
 

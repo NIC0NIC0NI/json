@@ -38,6 +38,6 @@ macro_rules! json_tokens {
         vec![$crate::from_json_str::JSONToken::NullToken]
     };
     ($x:expr) => {
-        vec![$crate::from_json_str::json_tokens::TokenValue::to_token($x)]
+        vec![$crate::from_json_str::json_token::TokenValue::to_token($x)]
     };
 }

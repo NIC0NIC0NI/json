@@ -4,13 +4,13 @@ use super::IntoJSON;
 
 impl <'arbitrary> IntoJSON for &'arbitrary str {
     fn into_json(self) -> JSON{
-        JSON::JSONString(self.to_string())
+        JSON::String(self.to_string())
     }
 }
 
 impl IntoJSON for String {
     fn into_json(self) -> JSON{
-        JSON::JSONString(self)
+        JSON::String(self)
     }
 }
 
@@ -31,15 +31,15 @@ macro_rules! type_map {
     };
 }
 
-type_map!{bool, JSONBool}
-type_map!{i8, i64, JSONInt}
-type_map!{i16, i64, JSONInt}
-type_map!{i32, i64, JSONInt}
-type_map!{i64, i64, JSONInt}
-type_map!{u8, i64, JSONInt}
-type_map!{u16, i64, JSONInt}
-type_map!{u32, i64, JSONInt}
-type_map!{u64, f64, JSONFloat}
-type_map!{f32, f64, JSONFloat}
-type_map!{f64, f64, JSONFloat}
+type_map!{bool, Bool}
+type_map!{i8, i64, Int}
+type_map!{i16, i64, Int}
+type_map!{i32, i64, Int}
+type_map!{i64, i64, Int}
+type_map!{u8, i64, Int}
+type_map!{u16, i64, Int}
+type_map!{u32, i64, Int}
+type_map!{u64, f64, Float}
+type_map!{f32, f64, Float}
+type_map!{f64, f64, Float}
 

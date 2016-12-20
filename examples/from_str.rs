@@ -18,8 +18,8 @@ fn main() {
     );
     if let Ok(parsed) = json_str.parse::<JSON>(){
         if let Some(nvp) = parsed.as_map() {
-            for (name, _) in nvp {
-                println!("{}", name);
+            for (name, value) in nvp {
+                println!("{} : {}", name, value);
             }
         }
     }
