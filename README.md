@@ -3,7 +3,7 @@ A simple JSON parser in Rust, together with utilities, like a macro that impleme
 
 ## Use
 ### Example
-```
+```rust
     #[macro_use(json_object)]
     extern crate json;
 
@@ -53,7 +53,7 @@ After all characters are processed, we check the internal state of the parser. I
 
 The two-phase processing is performed with pipelining, without storage of internal results. i.e. in tokenizing phase, whenever a new token is generated, it is passed to the parsing phase, without constructing `Vec<JSONToken>`.
 
-However, to test the correctness of the tokenizing, `Vec<JSONToken>` should be constructed and compared with the right answer. This is organized by the `TokenConsumer` trait. While tokenizing, whenever a new token is generated, it is passed to `TokenConsumer::consume`. This trait is implemented by both the parser object and `Vec<JSONToken>` with `push`.
+However, to test the correctness of the tokenizing, `Vec<JSONToken>` should be constructed and compared with the correct answer. This is organized by the `TokenConsumer` trait. While tokenizing, whenever a new token is generated, it is passed to `TokenConsumer::consume`. This trait is implemented by both the parser object and `Vec<JSONToken>` with `push`.
 
 ## Issues
 
@@ -73,6 +73,6 @@ Stable version of Rust is used, therefore even basic traits like `TryFrom` and `
 [ECMA-404.pdf](http://www.ecma-international.org/publications/files/ECMA-ST/ECMA-404.pdf)
 ### JavaScript
 The parsing result is compared with JavaScript
-```
+```javascript
     JSON.parse()
 ```
