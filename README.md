@@ -59,7 +59,7 @@ However, in testing `Vec<JSONToken>` should be constructed. This is organized by
 
 It does check the syntax and will return error if it finds something wrong, but the error message is not so comprehensible. 
 
-I used `std::collcetion::HashMap<String, JSON>` to represent key-value pairs without preserving the order. Replacing the definition of `$crate::json_object::NameValuePair` with an ordered map should work.
+I used `std::collcetion::HashMap<String, JSON>` to represent key-value pairs without preserving the order. Replacing the definition of `json_object::JSONObject` with an ordered map should work. Unfortunately, type adaptors are not yet implemented. 
 
 ## References
 ### Specification

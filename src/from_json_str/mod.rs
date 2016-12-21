@@ -11,7 +11,7 @@ use ::std::fmt::{Display, Formatter, Result as FmtResult};
 pub use self::parse::State as ParseState;
 pub use self::tokenize::State as TokenizeState;
 
-use super::json_object::JSON;
+use super::json_object::{JSON, JSONNumber};
 
 /// Represents parse error
 pub struct ParseError {
@@ -67,8 +67,7 @@ pub enum JSONToken {
     Colon,
     StringToken(String),
     BoolToken(bool),
-    IntToken(i64),
-    FloatToken(f64),
+    NumberToken(JSONNumber),
     NullToken,
 }
 
@@ -76,7 +75,7 @@ impl JSONToken {
     fn is_primitive_value(&self) -> bool {
         match self {
             &JSONToken::StringToken(_) | &JSONToken::BoolToken(_) | 
-                &JSONToken::IntToken(_) | &JSONToken::FloatToken(_) | 
+                &JSONToken::NumberToken(_) |
                     &JSONToken::NullToken => true,
             _ => false
         }
@@ -85,8 +84,7 @@ impl JSONToken {
         match self {
             JSONToken::StringToken(s) => Some(JSON::String(s)),
             JSONToken::BoolToken(b) => Some(JSON::Bool(b)),
-            JSONToken::IntToken(i) => Some(JSON::Int(i)),
-            JSONToken::FloatToken(f) => Some(JSON::Float(f)),
+            JSONToken::NumberToken(n) => Some(JSON::Number(n)),
             JSONToken::NullToken => Some(JSON::Null),
             _ => None
         }
@@ -104,8 +102,7 @@ impl Display for JSONToken {
             &JSONToken::Colon => write!(f, ": "),
             &JSONToken::StringToken(ref s) => write!(f, "\"{}\"", s),
             &JSONToken::BoolToken(s) => write!(f, "{}", s),
-            &JSONToken::IntToken(s) => write!(f, "{}", s),
-            &JSONToken::FloatToken(s) => write!(f, "{}", s),
+            &JSONToken::NumberToken(n) => write!(f, "{}", n),
             &JSONToken::NullToken => write!(f, "null")
         }
     }

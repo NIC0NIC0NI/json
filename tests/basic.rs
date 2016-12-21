@@ -89,3 +89,32 @@ fn it_works() {
     }
 }
 
+
+#[test]
+fn it_works_with_premitives() {
+    let a = stringify!("a single string");
+    let b = stringify!(12345);
+    let c = stringify!(123.45);
+    let d = stringify!(null);
+    let e = stringify!(false);
+    match a.parse::<JSON>() {
+        Ok(parsed) => assert_eq!(parsed, json_object!("a single string")),
+        Err(msg) => panic!("{}:\n{}", msg, a)
+    }
+    match b.parse::<JSON>() {
+        Ok(parsed) => assert_eq!(parsed, json_object!(12345)),
+        Err(msg) => panic!("{}:\n{}", msg, b)
+    }
+    match c.parse::<JSON>() {
+        Ok(parsed) => assert_eq!(parsed, json_object!(123.45)),
+        Err(msg) => panic!("{}:\n{}", msg, c)
+    }
+    match d.parse::<JSON>() {
+        Ok(parsed) => assert_eq!(parsed, json_object!(null)),
+        Err(msg) => panic!("{}:\n{}", msg, d)
+    }
+    match e.parse::<JSON>() {
+        Ok(parsed) => assert_eq!(parsed, json_object!(false)),
+        Err(msg) => panic!("{}:\n{}", msg, e)
+    }
+}

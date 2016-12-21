@@ -1,5 +1,4 @@
-use super::JSON;
-use super::NameValuePair;
+use super::{JSON, JSONNumber, JSONObject, JSONArray};
 
 macro_rules! is_type {
     ($fn_name:ident, Null) => {
@@ -77,16 +76,14 @@ impl JSON {
         }
     }
     is_type!{is_null, Null}
-    is_type!{is_integer, Int}
-    is_type!{is_float, Float}
+    is_type!{is_number, Number}
     is_type!{is_bool, Bool}
     is_type!{is_string, String}
     is_type!{is_array, Array}
     is_type!{is_object, Object}
-    to_premitive!{as_i64, i64, Int}
-    to_premitive!{as_f64, f64, Float}
+    to_premitive!{as_number, JSONNumber, Number}
     to_premitive!{as_bool, bool, Bool}
     to_object!{as_str, into_string, String, String}
-    to_object!{as_vec, into_vec, Vec<JSON>, Array}
-    to_object!{as_map, into_map, NameValuePair, Object}
+    to_object!{as_vec, into_vec, JSONArray, Array}
+    to_object!{as_map, into_map, JSONObject, Object}
 }

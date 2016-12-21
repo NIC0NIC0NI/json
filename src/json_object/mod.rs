@@ -3,10 +3,9 @@ mod macros;
 mod cast_from_json;
 mod cast_to_json;
 
+use super::number::Number;
 use ::std::collections::HashMap;
 use ::std::fmt::{Display,Formatter,Result as FmtResult};
-
-pub type NameValuePair = HashMap<String, JSON>;
 
 /// The type that represents a JSON object.
 /// Has implemented `FromStr` trait thus is able to parse from string.
@@ -26,13 +25,16 @@ pub type NameValuePair = HashMap<String, JSON>;
 #[derive(PartialEq, Debug, Clone)]
 pub enum JSON {
     Bool(bool),
-    Int(i64),
-    Float(f64),
+    Number(JSONNumber),
     String(String),
-    Array(Vec<JSON>),
-    Object(NameValuePair),
+    Array(JSONArray),
+    Object(JSONObject),
     Null
 }
+
+pub type JSONNumber = Number;
+pub type JSONObject = HashMap<String, JSON>;
+pub type JSONArray = Vec<JSON>;
 
 /// Convert rust primitive types to JSON.
 pub trait IntoJSON {
@@ -43,8 +45,7 @@ impl Display for JSON {
     fn fmt(&self, f: &mut Formatter) -> FmtResult {
         match self {
             &JSON::Bool(b) => write!(f, "{}", b),
-            &JSON::Int(i) => write!(f, "{}" ,i),
-            &JSON::Float(fp) => write!(f, "{}", fp),
+            &JSON::Number(n) => write!(f, "{}" ,n),
             &JSON::String(ref s) => write!(f, "\"{}\"", s),
             &JSON::Object(ref object) => {
                 let mut first = true;

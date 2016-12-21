@@ -2,38 +2,28 @@ mod match_token;
 #[cfg(test)]
 mod test;
 
-use super::TokenConsumer;
-use super::JSONToken;
-use super::TryIntoJSON;
-use super::ParseError;
-use super::super::json_object::JSON;
-use super::super::json_object::NameValuePair;
+use super::{TokenConsumer, JSONToken, TryIntoJSON, ParseError};
+use super::super::json_object::{JSON, JSONObject, JSONArray};
 
-use self::match_token::match_begin;
-use self::match_token::match_object_begin;
-use self::match_token::match_object_with_name;
-use self::match_token::match_object_with_colon;
-use self::match_token::match_object_with_value;
-use self::match_token::match_object_with_comma;
-use self::match_token::match_array_begin;
-use self::match_token::match_array_with_value;
-use self::match_token::match_array_with_comma;
-use self::match_token::match_end;
+use self::match_token::{match_begin, match_object_begin, match_object_with_name};
+use self::match_token::{match_object_with_value, match_object_with_comma};
+use self::match_token::{match_array_with_value, match_array_with_comma};
+use self::match_token::{match_end, match_array_begin, match_object_with_colon};
 
 pub enum NestedLevel {
-    Array(Vec<JSON>), Object(NameValuePair, String)
+    Array(JSONArray), Object(JSONObject, String)
 }
 
 pub enum State {
     Begin,
-    ObjectBegin(Vec<NestedLevel>, NameValuePair),
-    ObjectWithName(Vec<NestedLevel>, NameValuePair, String),
-    ObjectWithColon(Vec<NestedLevel>, NameValuePair, String),
-    ObjectWithValue(Vec<NestedLevel>, NameValuePair),
-    ObjectWithComma(Vec<NestedLevel>, NameValuePair),
-    ArrayBegin(Vec<NestedLevel>, Vec<JSON>),
-    ArrayWithValue(Vec<NestedLevel>, Vec<JSON>),
-    ArrayWithComma(Vec<NestedLevel>, Vec<JSON>),
+    ObjectBegin(Vec<NestedLevel>, JSONObject),
+    ObjectWithName(Vec<NestedLevel>, JSONObject, String),
+    ObjectWithColon(Vec<NestedLevel>, JSONObject, String),
+    ObjectWithValue(Vec<NestedLevel>, JSONObject),
+    ObjectWithComma(Vec<NestedLevel>, JSONObject),
+    ArrayBegin(Vec<NestedLevel>, JSONArray),
+    ArrayWithValue(Vec<NestedLevel>, JSONArray),
+    ArrayWithComma(Vec<NestedLevel>, JSONArray),
     End(JSON),
     Error(ParseError),
 }

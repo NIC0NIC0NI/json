@@ -8,7 +8,7 @@ fn main() {
             "name" : "Element",
             "items" : 
             [
-                1, 2, 3, false, true, 
+                1, 2, 3.5, false, true, 
                 {
                     "something" : null
                 }
@@ -17,6 +17,7 @@ fn main() {
         }
     );
     if let Ok(parsed) = json_str.parse::<JSON>(){
+        println!("{:?}", parsed);
         if let Some(nvp) = parsed.as_map() {
             for (name, value) in nvp {
                 println!("{} : {}", name, value);

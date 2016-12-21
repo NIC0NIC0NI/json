@@ -82,3 +82,9 @@ fn it_checks_unbalanced_bracket() {
     assert!(json_str1.parse::<JSON>().is_err());
     assert!(json_str2.parse::<JSON>().is_err());
 }
+
+#[test]
+fn it_checks_empty() {
+    let empty = "";
+    assert!(empty.parse::<JSON>().is_err());
+}

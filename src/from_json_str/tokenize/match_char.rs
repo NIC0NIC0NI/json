@@ -4,9 +4,8 @@ use ::std::char::from_u32;
 use ::std::str::FromStr;
 
 use super::State;
-use super::super::JSONToken;
-use super::super::TokenConsumer;
-use super::super::ParseError as Error;
+use super::super::{JSONToken, TokenConsumer, ParseError as Error};
+use super::super::super::json_object::JSONNumber;
 
 enum Escape {
     Character(char),
@@ -96,10 +95,8 @@ fn parse_value(s: &str) -> Result<JSONToken, Error> {
         "false" => Ok(JSONToken::BoolToken(false)),
         "null" => Ok(JSONToken::NullToken),
         _ => {
-            if let Ok(i) = i64::from_str(s) {
-                Ok(JSONToken::IntToken(i))
-            } else if let Ok(f) = f64::from_str(s) {
-                Ok(JSONToken::FloatToken(f))
+            if let Ok(n) = JSONNumber::from_str(s) {
+                Ok(JSONToken::NumberToken(n))
             } else {
                 Err(format!("Invalid value literal: {}" ,s).into())
             }

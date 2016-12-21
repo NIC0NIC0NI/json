@@ -2,19 +2,12 @@ mod match_char;
 #[cfg(test)]
 mod test;
 
-//use std::mem::swap;
-
-use super::TokenConsumer;
-use super::Tokenizer;
-use super::TryIntoJSON;
+use super::{TokenConsumer, Tokenizer, TryIntoJSON};
 use super::ParseError as TokenizeError;
-use ::JSON;
+use super::super::JSON;
 
-use self::match_char::match_in_string;
-use self::match_char::match_in_string_escape;
-use self::match_char::match_in_string_escape_unicode;
-use self::match_char::match_in_value;
-use self::match_char::match_out;
+use self::match_char::{match_in_string, match_in_string_escape_unicode};
+use self::match_char::{match_in_value, match_out, match_in_string_escape};
 
 pub enum State <Consumer> {
     InString (Consumer, String),

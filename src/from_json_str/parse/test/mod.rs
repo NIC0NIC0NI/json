@@ -1,8 +1,6 @@
 use super::State;
-use super::super::JSONToken;
-use super::super::TokenConsumer;
-use super::super::ParseError as Error;
-use ::JSON;
+use super::super::{JSONToken,TokenConsumer,ParseError as Error};
+use super::super::super::JSON;
 
 fn parse_tokens(tokens: Vec<JSONToken>) -> Result<JSON,Error> {
     let init = State::new();

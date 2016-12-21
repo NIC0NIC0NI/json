@@ -1,7 +1,5 @@
 
-use super::super::TokenConsumer;
-use super::super::Tokenizer;
-use super::super::JSONToken;
+use super::super::{TokenConsumer,Tokenizer,JSONToken};
 use super::super::ParseError as Error;
 use super::State;
 

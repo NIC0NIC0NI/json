@@ -1,16 +1,14 @@
 #[macro_use]
 mod json_object;
 mod from_json_str;
+mod number;
 
 use std::str::FromStr;
 
-pub use json_object::JSON;
-pub use json_object::IntoJSON;
+pub use number::Number;
+pub use json_object::{JSON, IntoJSON};
 pub use from_json_str::ParseError;
-use from_json_str::TokenizeState;
-use from_json_str::ParseState;
-use from_json_str::TryIntoJSON;
-use from_json_str::from_char_stream;
+use from_json_str::{TokenizeState, ParseState, TryIntoJSON, from_char_stream};
 
 /// Another version of `FromIterator`, may fail.
 pub trait TryFromIterator<Item> : Sized{
@@ -25,7 +23,7 @@ type Tokenizer = TokenizeState<TokenConsumer>;
 
 impl TryFromIterator<char> for JSON {
     type Err = ParseError;
-    fn try_from_iter<I:IntoIterator<Item=char>>(iter: I) -> Result<Self, ParseError>  {
+    fn try_from_iter<I:IntoIterator<Item=char>>(iter: I) -> Result<Self, Self::Err>  {
         let result: Tokenizer = from_char_stream(iter.into_iter());
         result.try_into_json()
     }
