@@ -61,9 +61,11 @@ However, to test the correctness of the tokenizing, `Vec<JSONToken>` should be c
 It does check the syntax and will return error if it finds something wrong. But the error object contains nonthing but an error message, and the message is not so comprehensible. 
 
 ### More Generic
-`std::collcetion::HashMap<String, JSON>` is used to represent key-value pairs without preserving the order. It should work by replacing the definition of `json_object::JSONObject` with an ordered map. Unfortunately, type adaptors are not yet implemented. 
+`std::collcetion::HashMap<String, JSON>` is used to represent key-value pairs without preserving the order. Replacing the definition of `json_object::JSONObject` with an ordered map will fix this.
 
-What's more, even the data type to represent numbers and strings are not customizable.
+On the other hand, a number value of JSON is represented by either `i64`, `u64` or `f64`. If encountering a big integer that overflows with `u64`, it will be represented by `f64`, with precision loss. Replacing `number::Number` with a big integer implementation will fix this. 
+
+Unfortunately, type adaptors are not yet implemented. Even the data type representing numbers and strings are not customizable.
 
 ### Stable Rust
 Stable version of Rust is used, therefore even basic traits like `TryFrom` and `TryInto` are defined by myself. These will be removed once standard library is stabilized.

@@ -30,14 +30,14 @@ macro_rules! number_type_map {
     };
 }
 
-number_type_map!{i8, i64, Int}
+number_type_map!{i8,  i64, Int}
 number_type_map!{i16, i64, Int}
 number_type_map!{i32, i64, Int}
 number_type_map!{i64, i64, Int}
-number_type_map!{u8, i64, Int}
-number_type_map!{u16, i64, Int}
-number_type_map!{u32, i64, Int}
-number_type_map!{u64, f64, Float} // u64 to i64 may overflow
+number_type_map!{u8,  u64, UInt}
+number_type_map!{u16, u64, UInt}
+number_type_map!{u32, u64, UInt}
+number_type_map!{u64, u64, UInt}
 number_type_map!{f32, f64, Float}
 number_type_map!{f64, f64, Float}
 

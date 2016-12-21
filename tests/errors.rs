@@ -88,3 +88,4 @@ fn it_checks_empty() {
     let empty = "";
     assert!(empty.parse::<JSON>().is_err());
 }
+

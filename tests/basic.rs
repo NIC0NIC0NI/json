@@ -118,3 +118,22 @@ fn it_works_with_premitives() {
         Err(msg) => panic!("{}:\n{}", msg, e)
     }
 }
+
+#[test]
+fn it_handles_overflow() {
+    let signed = "9000000000000000000";
+    let unsigned = "10000000000000000000";
+    let float = "20000000000000000000";
+    match signed.parse::<JSON>(){
+        Ok(JSON::Number(n)) => assert!(n.is_int()),
+        _ => panic!("failed with number overflow {}", signed)
+    }
+    match unsigned.parse::<JSON>(){
+        Ok(JSON::Number(n)) => assert!(n.is_uint()),
+        _ => panic!("failed with number overflow {}", unsigned)
+    }
+    match float.parse::<JSON>(){
+        Ok(JSON::Number(n)) => assert!(n.is_float()),
+        _ => panic!("failed with number overflow {}", float)
+    }
+}
