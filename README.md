@@ -1,5 +1,5 @@
 # JSON
-A simple JSON parser in Rust. Practice purpose.
+A simple JSON parser in Rust, together with utilities, like a macro that implements JSON literal.
 
 ## Use
 ### Example
@@ -40,10 +40,10 @@ character stream --------> tokenize ---------> token stream
 Tokeinization and parsing are based on finite state machine, with states represented by `enum`.
 
 ```
-              +->  internal state of tokenizer ------------+
+              +--------------------------------------------+
               |                                            |
               |                                            v
-char input  --+------------------------------------>  token output
+char input  --+-->  internal state of tokenizer ---->  token output
 
 token input  -------------->  internal state of parser
 ```
@@ -51,15 +51,22 @@ After all characters are processed, we check the internal state of the parser. I
 
 ## Testing Details
 
-The two-phase processing is performed with pipelining, without storage of internal results. i.e. no `Vec<JSONToken>` appears. 
+The two-phase processing is performed with pipelining, without storage of internal results. i.e. in tokenizing phase, whenever a new token is generated, it is passed to the parsing phase, without constructing `Vec<JSONToken>`.
 
-However, in testing `Vec<JSONToken>` should be constructed. This is organized by the `TokenConsumer` trait. While tokenizing, whenever a new token is generated, it is passed to `TokenConsumer::consume`. This trait is implemented by both the parser object with the parsing phase and `Vec<JSONToken>` with `push`.
+However, to test the correctness of the tokenizing, `Vec<JSONToken>` should be constructed and compared with the right answer. This is organized by the `TokenConsumer` trait. While tokenizing, whenever a new token is generated, it is passed to `TokenConsumer::consume`. This trait is implemented by both the parser object and `Vec<JSONToken>` with `push`.
 
-## Limitations
+## Issues
 
-It does check the syntax and will return error if it finds something wrong, but the error message is not so comprehensible. 
+### Comprehensible Errors
+It does check the syntax and will return error if it finds something wrong. But the error object contains nonthing but an error message, and the message is not so comprehensible. 
 
-I used `std::collcetion::HashMap<String, JSON>` to represent key-value pairs without preserving the order. Replacing the definition of `json_object::JSONObject` with an ordered map should work. Unfortunately, type adaptors are not yet implemented. 
+### More Generic
+`std::collcetion::HashMap<String, JSON>` is used to represent key-value pairs without preserving the order. It should work by replacing the definition of `json_object::JSONObject` with an ordered map. Unfortunately, type adaptors are not yet implemented. 
+
+What's more, even the data type to represent numbers and strings are not customizable.
+
+### Stable Rust
+Stable version of Rust is used, therefore even basic traits like `TryFrom` and `TryInto` are defined by myself. These will be removed once standard library is stabilized.
 
 ## References
 ### Specification

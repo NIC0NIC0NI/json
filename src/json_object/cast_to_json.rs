@@ -1,30 +1,30 @@
-use super::{JSON, IntoJSON};
+use super::JSON;
 use super::super::number::Number;
 
-
-impl <'arbitrary> IntoJSON for &'arbitrary str {
-    fn into_json(self) -> JSON{
-        JSON::String(self.to_string())
+impl From<String> for JSON {
+    fn from(s: String) -> Self {
+        JSON::String(s)
     }
 }
 
-impl IntoJSON for String {
-    fn into_json(self) -> JSON{
-        JSON::String(self)
+impl <'arbitrary> From<&'arbitrary str> for JSON {
+    fn from(s: &'arbitrary str) -> Self {
+        JSON::String(s.to_string())
     }
 }
 
-impl IntoJSON for bool {
-    fn into_json(self) -> JSON {
-        JSON::Bool(self)
+impl From<bool> for JSON {
+    fn from(b: bool) -> Self {
+        JSON::Bool(b)
     }
 }
+
 
 macro_rules! number_type_map {
     ($rust_type: ty, $inter_type: ty, $json_type: ident) => {
-        impl IntoJSON for $rust_type {
-            fn into_json(self) -> JSON{
-                JSON::Number(Number::$json_type(self as $inter_type))
+        impl From<$rust_type> for JSON {
+            fn from(n: $rust_type) -> Self {
+                JSON::Number(Number::$json_type(n as $inter_type))
             }
         }
     };

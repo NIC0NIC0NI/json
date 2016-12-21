@@ -40,6 +40,6 @@ macro_rules! json_object {
         $crate::JSON::Null
     };
     ($x:expr) => {
-        $crate::IntoJSON::into_json($x)
+        $crate::JSON::from($x)
     };
 }

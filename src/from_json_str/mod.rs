@@ -1,31 +1,21 @@
 #[macro_use]
-#[cfg(test)]
 mod json_token;
 mod tokenize;
 mod parse;
 mod error;
 
 use std::mem::replace;
-use ::std::fmt::{Display, Formatter, Result as FmtResult};
 
 pub use self::parse::State as ParseState;
 pub use self::tokenize::State as TokenizeState;
+pub use self::json_token::JSONToken;
 
-use super::json_object::{JSON, JSONNumber};
+use super::json_object::JSON;
+use super::convert::TryInto;
 
 /// Represents parse error
 pub struct ParseError {
     description : String
-}
-
-pub trait Tokenizer {
-    fn new() -> Self;
-    fn tokenize(self, c: char) -> Self;
-}
-
-pub fn from_char_stream<T:Tokenizer, I:Iterator<Item=char>>(iter: I) -> T{
-    let parse_state = T::new();
-    iter.fold(parse_state, T::tokenize).tokenize(' ')
 }
 
 /// Used in self::tokenize
@@ -47,63 +37,12 @@ impl <TC:TokenConsumer+Default> TokenConsumer for Box<TC> {
     }
 }
 
-/// Used in super
-pub trait TryIntoJSON {
-    fn try_into_json(self) -> Result<JSON, ParseError>;
-}
-impl <I:TryIntoJSON> TryIntoJSON for Box<I> {
-    fn try_into_json(self) -> Result<JSON, ParseError> {
-        (*self).try_into_json()
-    }
+pub trait Tokenizer {
+    fn new() -> Self;
+    fn tokenize(self, c: char) -> Self;
 }
 
-#[derive(PartialEq, Debug)]
-pub enum JSONToken {
-    LeftBrace,
-    RightBrace,
-    LeftBracket, 
-    RightBracket,
-    Comma,
-    Colon,
-    StringToken(String),
-    BoolToken(bool),
-    NumberToken(JSONNumber),
-    NullToken,
-}
-
-impl JSONToken {
-    fn is_primitive_value(&self) -> bool {
-        match self {
-            &JSONToken::StringToken(_) | &JSONToken::BoolToken(_) | 
-                &JSONToken::NumberToken(_) |
-                    &JSONToken::NullToken => true,
-            _ => false
-        }
-    }
-    fn into_primitive_value(self) -> Option<JSON> {
-        match self {
-            JSONToken::StringToken(s) => Some(JSON::String(s)),
-            JSONToken::BoolToken(b) => Some(JSON::Bool(b)),
-            JSONToken::NumberToken(n) => Some(JSON::Number(n)),
-            JSONToken::NullToken => Some(JSON::Null),
-            _ => None
-        }
-    }
-}
-
-impl Display for JSONToken {
-    fn fmt(&self, f: &mut Formatter) -> FmtResult {
-        match self {
-            &JSONToken::LeftBrace => write!(f, "{{"),
-            &JSONToken::RightBrace => write!(f, "}}"),
-            &JSONToken::LeftBracket => write!(f, "["),
-            &JSONToken::RightBracket => write!(f, "]"),
-            &JSONToken::Comma => write!(f, ", "),
-            &JSONToken::Colon => write!(f, ": "),
-            &JSONToken::StringToken(ref s) => write!(f, "\"{}\"", s),
-            &JSONToken::BoolToken(s) => write!(f, "{}", s),
-            &JSONToken::NumberToken(n) => write!(f, "{}", n),
-            &JSONToken::NullToken => write!(f, "null")
-        }
-    }
+pub fn from_char_stream<T, I>(iter: I) -> Result<JSON, ParseError>
+    where T:Tokenizer + TryInto<JSON, Err=ParseError>, I:Iterator<Item=char> {
+    iter.fold(T::new(), T::tokenize).tokenize(' ').try_into()
 }

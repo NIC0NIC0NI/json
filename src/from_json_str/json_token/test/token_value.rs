@@ -1,4 +1,4 @@
-use super::super::super::number::Number;
+use super::super::super::super::number::Number;
 use super::super::JSONToken;
 use super::TokenValue;
 

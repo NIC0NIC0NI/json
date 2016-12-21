@@ -2,10 +2,10 @@ mod match_char;
 #[cfg(test)]
 mod test;
 
-use super::{TokenConsumer, Tokenizer, TryIntoJSON};
+use super::{TokenConsumer, Tokenizer};
 use super::ParseError as TokenizeError;
 use super::super::JSON;
-
+use super::super::convert::{TryFrom, TryInto};
 use self::match_char::{match_in_string, match_in_string_escape_unicode};
 use self::match_char::{match_in_value, match_out, match_in_string_escape};
 
@@ -39,10 +39,12 @@ impl <TC:TokenConsumer> Tokenizer for State <TC> {
     }
 }
 
-impl <I:TryIntoJSON>  TryIntoJSON for State<I> {
-    fn try_into_json(self) -> Result<JSON, TokenizeError> {
-        match self {
-            State::Out(i) => i.try_into_json(),
+impl <I> TryFrom<State<I>> for JSON
+    where I: TryInto<JSON, Err=TokenizeError>{
+    type Err = TokenizeError;
+    fn try_from(s: State<I>) -> Result<JSON, Self::Err> {
+        match s {
+            State::Out(i) => i.try_into(),
             State::Error(msg) => Err(msg),
             _ => Err("Unmatched quotes".into())
         }

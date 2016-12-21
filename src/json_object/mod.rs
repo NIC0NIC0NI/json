@@ -36,10 +36,6 @@ pub type JSONNumber = Number;
 pub type JSONObject = HashMap<String, JSON>;
 pub type JSONArray = Vec<JSON>;
 
-/// Convert rust primitive types to JSON.
-pub trait IntoJSON {
-    fn into_json(self) -> JSON;
-}
 
 impl Display for JSON {
     fn fmt(&self, f: &mut Formatter) -> FmtResult {

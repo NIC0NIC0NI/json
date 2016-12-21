@@ -2,8 +2,9 @@ mod match_token;
 #[cfg(test)]
 mod test;
 
-use super::{TokenConsumer, JSONToken, TryIntoJSON, ParseError};
+use super::{TokenConsumer, JSONToken, ParseError};
 use super::super::json_object::{JSON, JSONObject, JSONArray};
+use super::super::convert::TryFrom;
 
 use self::match_token::{match_begin, match_object_begin, match_object_with_name};
 use self::match_token::{match_object_with_value, match_object_with_comma};
@@ -71,9 +72,10 @@ impl Default for State {
     }
 }
 
-impl TryIntoJSON for State {
-    fn try_into_json(self) -> Result<JSON, ParseError> {
-        match self {
+impl TryFrom<State> for JSON {
+    type Err = ParseError;
+    fn try_from(s: State) -> Result<JSON, Self::Err> {
+        match s {
             State::End(json) => Ok(json),
             State::Error(error) => Err(error),
             State::Begin => Err("Empty string".into()),
