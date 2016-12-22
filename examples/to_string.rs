@@ -1,8 +1,8 @@
-#[macro_use(json_object)]
+#[macro_use]
 extern crate json;
 
 fn main() {
-    let json_obj = json_object!(
+    let json_obj = json_default!(
         {
             name : "Element",
             items : 

@@ -3,7 +3,7 @@ mod match_token;
 mod test;
 
 use super::{TokenConsumer, JSONToken, ParseError};
-use super::super::json_object::{JSON, JSONObject, JSONArray};
+use super::super::type_adapt::{MakeJSON, JSONObject, JSONArray};
 use super::super::convert::TryFrom;
 
 use self::match_token::{match_begin, match_object_begin, match_object_with_name};
@@ -11,25 +11,43 @@ use self::match_token::{match_object_with_value, match_object_with_comma};
 use self::match_token::{match_array_with_value, match_array_with_comma};
 use self::match_token::{match_end, match_array_begin, match_object_with_colon};
 
-pub enum NestedLevel {
-    Array(JSONArray), Object(JSONObject, String)
+pub enum NestedLevel <JSON> 
+    where JSON : MakeJSON,
+          <JSON as MakeJSON>::Array : JSONArray<JSON=JSON>,
+          <JSON as MakeJSON>::Object : JSONObject<JSON=JSON>{
+    Array(<JSON as MakeJSON>::Array), 
+    Object(<JSON as MakeJSON>::Object, String)
 }
 
-pub enum State {
+pub enum State <JSON> 
+    where JSON : MakeJSON,
+          <JSON as MakeJSON>::Array : JSONArray<JSON=JSON>,
+          <JSON as MakeJSON>::Object : JSONObject<JSON=JSON>{
     Begin,
-    ObjectBegin(Vec<NestedLevel>, JSONObject),
-    ObjectWithName(Vec<NestedLevel>, JSONObject, String),
-    ObjectWithColon(Vec<NestedLevel>, JSONObject, String),
-    ObjectWithValue(Vec<NestedLevel>, JSONObject),
-    ObjectWithComma(Vec<NestedLevel>, JSONObject),
-    ArrayBegin(Vec<NestedLevel>, JSONArray),
-    ArrayWithValue(Vec<NestedLevel>, JSONArray),
-    ArrayWithComma(Vec<NestedLevel>, JSONArray),
+    ObjectBegin(Vec<NestedLevel<JSON>>,
+         <JSON as MakeJSON>::Object),
+    ObjectWithName(Vec<NestedLevel<JSON>>, 
+        <JSON as MakeJSON>::Object, String),
+    ObjectWithColon(Vec<NestedLevel<JSON>>, 
+        <JSON as MakeJSON>::Object, String),
+    ObjectWithValue(Vec<NestedLevel<JSON>>, 
+        <JSON as MakeJSON>::Object),
+    ObjectWithComma(Vec<NestedLevel<JSON>>, 
+        <JSON as MakeJSON>::Object),
+    ArrayBegin(Vec<NestedLevel<JSON>>, 
+        <JSON as MakeJSON>::Array),
+    ArrayWithValue(Vec<NestedLevel<JSON>>, 
+        <JSON as MakeJSON>::Array),
+    ArrayWithComma(Vec<NestedLevel<JSON>>, 
+        <JSON as MakeJSON>::Array),
     End(JSON),
     Error(ParseError),
 }
 
-impl State {
+impl <JSON> State <JSON> 
+    where JSON: MakeJSON,
+          <JSON as MakeJSON>::Array : JSONArray<JSON=JSON>,
+          <JSON as MakeJSON>::Object : JSONObject<JSON=JSON>{
     fn parse_token(self, token: JSONToken) -> Self{
         match self {
             State::Begin => 
@@ -57,7 +75,10 @@ impl State {
     }
 }
 
-impl TokenConsumer for State {
+impl <JSON> TokenConsumer for State <JSON> 
+    where JSON: MakeJSON,
+          <JSON as MakeJSON>::Array : JSONArray<JSON=JSON>,
+          <JSON as MakeJSON>::Object : JSONObject<JSON=JSON>{
     fn new() -> Self {
         State::Begin
     }
@@ -66,15 +87,21 @@ impl TokenConsumer for State {
     }
 }
 
-impl Default for State {
+impl <JSON> Default for State <JSON> 
+    where JSON: MakeJSON,
+          <JSON as MakeJSON>::Array : JSONArray<JSON=JSON>,
+          <JSON as MakeJSON>::Object : JSONObject<JSON=JSON>{
     fn default() -> Self {
         State::Begin
     }
 }
 
-impl TryFrom<State> for JSON {
+impl <JSON> TryFrom<State<JSON>> for JSON 
+    where JSON: MakeJSON,
+          <JSON as MakeJSON>::Array : JSONArray<JSON=JSON>,
+          <JSON as MakeJSON>::Object : JSONObject<JSON=JSON>{
     type Err = ParseError;
-    fn try_from(s: State) -> Result<JSON, Self::Err> {
+    fn try_from(s: State<JSON>) -> Result<JSON, Self::Err> {
         match s {
             State::End(json) => Ok(json),
             State::Error(error) => Err(error),

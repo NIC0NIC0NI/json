@@ -4,8 +4,8 @@ mod test;
 
 use super::{TokenConsumer, Tokenizer};
 use super::ParseError as TokenizeError;
-use super::super::JSON;
 use super::super::convert::{TryFrom, TryInto};
+use super::super::type_adapt::{MakeJSON, JSONObject, JSONArray};
 use self::match_char::{match_in_string, match_in_string_escape_unicode};
 use self::match_char::{match_in_value, match_out, match_in_string_escape};
 
@@ -39,8 +39,11 @@ impl <TC:TokenConsumer> Tokenizer for State <TC> {
     }
 }
 
-impl <I> TryFrom<State<I>> for JSON
-    where I: TryInto<JSON, Err=TokenizeError>{
+impl <I, JSON> TryFrom<State<I>> for JSON
+    where I: TryInto<JSON, Err=TokenizeError>,
+          JSON: MakeJSON,
+          <JSON as MakeJSON>::Array : JSONArray<JSON=JSON>,
+          <JSON as MakeJSON>::Object : JSONObject<JSON=JSON>{
     type Err = TokenizeError;
     fn try_from(s: State<I>) -> Result<JSON, Self::Err> {
         match s {

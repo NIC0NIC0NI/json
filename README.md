@@ -4,13 +4,13 @@ A simple JSON parser in Rust, together with utilities, like a macro that impleme
 ## Use
 ### Example
 ```rust
-    #[macro_use(json_object)]
+    #[macro_use]
     extern crate json;
 
-    use json::JSON;
+    use json::DefaultJSON as JSON;
 
-    // construct JSON object directly.
-    let json_obj = json_object!(
+    // construct DefaultJSON object directly.
+    let json_obj = json_default!(
         {name: "Element", items: [1, 2, 3, false, true, {something: null}]}
     );    
 
@@ -60,15 +60,14 @@ However, to test the correctness of the tokenizing, `Vec<JSONToken>` should be c
 ### Comprehensible Errors
 It does check the syntax and will return error if it finds something wrong. But the error object contains nonthing but an error message, and the message is not so comprehensible. 
 
-### More Generic
-`std::collcetion::HashMap<String, JSON>` is used to represent key-value pairs without preserving the order. Replacing the definition of `json_object::JSONObject` with an ordered map will fix this.
-
-On the other hand, a number value of JSON is represented by either `i64`, `u64` or `f64`. If encountering a big integer that overflows with `u64`, it will be represented by `f64`, with precision loss. Replacing `number::Number` with a big integer implementation will fix this. 
-
-Unfortunately, type adaptors are not yet implemented. Even the data type representing numbers and strings are not customizable.
+### Generic Objects
+Generic objects are supported. Traits need to be simplified.
 
 ### Stable Rust
 Stable version of Rust is used, therefore even basic traits like `TryFrom` and `TryInto` are defined by myself. These will be removed once standard library is stabilized.
+
+## Change Log
+* version 1.0.0: Implemented generic functionality for customized types.
 
 ## References
 ### Specification

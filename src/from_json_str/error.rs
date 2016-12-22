@@ -31,6 +31,6 @@ impl Display for ParseError {
 
 impl Debug for ParseError {
     fn fmt(&self, f: &mut Formatter) -> FmtResult {
-        write!(f, "{:?}", self.description)
+        write!(f, "{}", self.description)
     }
 }

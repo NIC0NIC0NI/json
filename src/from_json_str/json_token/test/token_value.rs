@@ -1,4 +1,4 @@
-use super::super::super::super::number::Number;
+
 use super::super::JSONToken;
 use super::TokenValue;
 
@@ -19,24 +19,24 @@ impl TokenValue for bool {
     }
 }
 
-macro_rules! number_type_map {
-    ($rust_type: ty, $inter_type: ty, $json_type: ident) => {
+macro_rules! register_numeric_type {
+    ($rust_type: ty) => {
         impl TokenValue for $rust_type {
             fn to_token(self) -> JSONToken{
-                JSONToken::NumberToken(Number::$json_type(self as $inter_type))
+                JSONToken::NumberToken(self.to_string())
             }
         }
     };
 }
 
-number_type_map!{i8, i64, Int}
-number_type_map!{i16, i64, Int}
-number_type_map!{i32, i64, Int}
-number_type_map!{i64, i64, Int}
-number_type_map!{u8, i64, Int}
-number_type_map!{u16, i64, Int}
-number_type_map!{u32, i64, Int}
-number_type_map!{u64, f64, Float}
-number_type_map!{f32, f64, Float}
-number_type_map!{f64, f64, Float}
+register_numeric_type!{i8}
+register_numeric_type!{i16}
+register_numeric_type!{i32}
+register_numeric_type!{i64}
+register_numeric_type!{u8}
+register_numeric_type!{u16}
+register_numeric_type!{u32}
+register_numeric_type!{u64}
+register_numeric_type!{f32}
+register_numeric_type!{f64}
 

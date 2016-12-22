@@ -1,6 +1,6 @@
 extern crate json;
 
-use json::JSON;
+use json::DefaultJSON as JSON;
 
 fn main() {
     let json_str = stringify!(
@@ -18,10 +18,5 @@ fn main() {
     );
     if let Ok(parsed) = json_str.parse::<JSON>(){
         println!("{:?}", parsed);
-        if let Some(nvp) = parsed.as_map() {
-            for (name, value) in nvp {
-                println!("{} : {}", name, value);
-            }
-        }
     }
 }

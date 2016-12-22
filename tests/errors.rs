@@ -1,6 +1,6 @@
 extern crate json;
 
-use json::JSON;
+use json::DefaultJSON as JSON;
 
 #[test]
 fn it_checks_simple_syntax_error_1() {

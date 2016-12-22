@@ -1,45 +1,52 @@
-/// Construct JSON object use JSON syntax. Note that property names are not quoted.
-/// # Examples
-/// ```
-/// #[macro_use]
-/// extern crate json;
-/// use json::JSON;
-/// fn main(){
-///     let json_obj:JSON = json_object!(
-///         { first_property : "good", second_property : [1, 2, 3, false, null]}   
-///     );
-/// }
-/// ```
 #[macro_export]
 macro_rules! json_object {
-    ( [$($item:tt),+] ) => {{
-        let mut vector = Vec::new();
+    ( $T:ty : {}) => {{
+        let object = <$T as $crate::MakeJSON>::Object::new();
+        <$T as $crate::MakeJSON>::make_object(object)
+    }};
+    ( $T:ty : {$($name:ident : $value:tt),+}) => {{
+        let mut object = <$T as $crate::MakeJSON>::Object::new();
         $(
-            vector.push(json_object!($item));
+            <<$T as $crate::MakeJSON>::Object as $crate::JSONObject>::add(
+                &mut object, 
+                stringify!($name).to_string(),
+                json_object!($T: $value)
+            );
         )*
-        $crate::JSON::Array(vector)
+        <$T as $crate::MakeJSON>::make_object(object)
     }};
-    // specialized in order to get rid of "unused mutable" warning
-    ( [] ) => {{
-        $crate::JSON::Array(Vec::new())
+    ( $T:ty : []) => {{
+        let array = <$T as $crate::MakeJSON>::Array::new();
+        <$T as $crate::MakeJSON>::make_array(array)
     }};
-
-    ( {$($name:ident : $value:tt),+} ) => {{
-        let mut hash_map = ::std::collections::HashMap::new();
+    ( $T:ty : [$($value:tt),+]) => {{
+        let mut array = <$T as $crate::MakeJSON>::Array::new();
         $(
-            hash_map.insert(stringify!($name).to_string(), json_object!($value));
+            <<$T as $crate::MakeJSON>::Array as $crate::JSONArray>::add(
+                &mut array, 
+                json_object!($T: $value)
+            );
         )*
-        $crate::JSON::Object(hash_map)
+        <$T as $crate::MakeJSON>::make_array(array)
     }};
-    // get rid of warning
-    ( {} ) => {{
-        $crate::JSON::Object(::std::collections::HashMap::new())
-    }};
-
-    (null) => {
-        $crate::JSON::Null
+    ( $T:ty : null) => {
+        <$T as $crate::MakeJSON>::make_null()
     };
-    ($x:expr) => {
-        $crate::JSON::from($x)
+    ( $T:ty : $x:expr) => {
+       $crate::FromPremitive::from_premitive($x)
+    };
+}
+
+#[macro_export]
+macro_rules! json_default {
+    ($x:tt) => {
+        json_object!($crate::DefaultJSON: $x)
+    };
+}
+
+#[macro_export]
+macro_rules! json_preserving {
+    ($x:tt) => {
+        json_object!($crate::PreservingJSON: $x)
     };
 }

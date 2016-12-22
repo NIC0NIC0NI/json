@@ -1,11 +1,9 @@
 //! Describes the state transition
 
 use ::std::char::from_u32;
-use ::std::str::FromStr;
 
 use super::State;
-use super::super::{JSONToken, TokenConsumer, ParseError as Error};
-use super::super::super::json_object::JSONNumber;
+use super::super::{JSONToken, TokenConsumer};
 
 enum Escape {
     Character(char),
@@ -89,38 +87,26 @@ pub fn match_in_string_escape_unicode<TC:TokenConsumer>(c: char, consumer: TC,
     }
 }
 
-fn parse_value(s: &str) -> Result<JSONToken, Error> {
-    match s {
-        "true" => Ok(JSONToken::BoolToken(true)),
-        "false" => Ok(JSONToken::BoolToken(false)),
-        "null" => Ok(JSONToken::NullToken),
-        _ => {
-            if let Ok(n) = JSONNumber::from_str(s) {
-                Ok(JSONToken::NumberToken(n))
-            } else {
-                Err(format!("Invalid value literal: {}" ,s).into())
-            }
-        }
+// unchecked
+fn parse_value(s: String) -> JSONToken {
+    if s == "true" {
+        JSONToken::BoolToken(true)
+    } else if s == "false" {
+        JSONToken::BoolToken(false)
+    } else if s == "null" {
+        JSONToken::NullToken
+    } else {
+        JSONToken::NumberToken(s)
     }
 }
 
 pub fn match_in_value<TC:TokenConsumer>(c: char, consumer: TC, mut word: String) -> State<TC> {
     match c {
         cx if cx.is_whitespace() => {
-            match parse_value(&word) {
-                Ok(v) => {
-                    State::Out(consumer.consume(v))
-                },
-                Err(msg) => State::Error(msg)
-            }
+            State::Out(consumer.consume(parse_value(word)))
         },
         cx if is_structure(cx) => {
-            match parse_value(&word) {
-                Ok(v) => {
-                    State::Out(consumer.consume(v).consume(to_structure(cx).unwrap()))
-                },
-                Err(msg) => State::Error(msg)
-            }
+            State::Out(consumer.consume(parse_value(word)).consume(to_structure(cx).unwrap()))
         }
         cx => {
             word.push(cx);

@@ -10,7 +10,7 @@ pub use self::parse::State as ParseState;
 pub use self::tokenize::State as TokenizeState;
 pub use self::json_token::JSONToken;
 
-use super::json_object::JSON;
+use super::type_adapt::{MakeJSON, JSONObject, JSONArray};
 use super::convert::TryInto;
 
 /// Represents parse error
@@ -42,7 +42,11 @@ pub trait Tokenizer {
     fn tokenize(self, c: char) -> Self;
 }
 
-pub fn from_char_stream<T, I>(iter: I) -> Result<JSON, ParseError>
-    where T:Tokenizer + TryInto<JSON, Err=ParseError>, I:Iterator<Item=char> {
+pub fn from_char_stream<JSON, T, I>(iter: I) -> Result<JSON, ParseError>
+    where T:Tokenizer + TryInto<JSON, Err=ParseError>, 
+          I:Iterator<Item=char>, 
+          JSON: MakeJSON,
+          <JSON as MakeJSON>::Array : JSONArray<JSON=JSON>,
+          <JSON as MakeJSON>::Object : JSONObject<JSON=JSON>{
     iter.fold(T::new(), T::tokenize).tokenize(' ').try_into()
 }

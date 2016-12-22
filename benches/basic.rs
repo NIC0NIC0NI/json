@@ -3,9 +3,9 @@ extern crate bencher;
 extern crate json;
 use bencher::Bencher;
 
-use json::JSON;
+use json::DefaultJSON as JSON;
 
-benchmark_group!(benches, basic, dence_tokens);
+benchmark_group!(benches, basic, dence_tokens, numbers);
 benchmark_main!(benches);
 
 fn basic(b: &mut Bencher) {
@@ -24,8 +24,8 @@ fn basic(b: &mut Bencher) {
                 {
                     "class" : "TextNode",
                     "text" : "JSON",
-                    "attributes" : [],
-                    "children" : []
+                    "attributes" : [123],
+                    "children" : [null, false]
                 }
             ]
         }
@@ -78,6 +78,15 @@ fn dence_tokens(b: &mut Bencher) {
     );
     // remove white spaces 
     let json_str = &s.chars().filter(|c| !c.is_whitespace()).collect::<String>();
+    b.iter(|| {
+        json_str.parse::<JSON>()
+    })
+}
+
+fn numbers(b: &mut Bencher) {
+    let json_str = stringify!(
+        [1,2,3,123.456,123.4231,3214,421,10000000000000000000,20000000000000000000]
+    );
     b.iter(|| {
         json_str.parse::<JSON>()
     })

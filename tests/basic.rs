@@ -1,11 +1,11 @@
-#[macro_use(json_object)]
+#[macro_use]
 extern crate json;
 
-use json::JSON;
+use json::DefaultJSON as JSON;
 
 #[test]
 fn it_seems_to_work() {
-    let json_obj = json_object!(
+    let json_obj = json_default!(
         {
             name : "Element",
             items : 
@@ -37,7 +37,7 @@ fn it_seems_to_work() {
 
 #[test]
 fn it_works() {
-    let json_obj = json_object!(
+    let json_obj = json_default!(
         {
             class : "Element",
             tag : "a",
@@ -98,42 +98,23 @@ fn it_works_with_premitives() {
     let d = stringify!(null);
     let e = stringify!(false);
     match a.parse::<JSON>() {
-        Ok(parsed) => assert_eq!(parsed, json_object!("a single string")),
+        Ok(parsed) => assert_eq!(parsed, json_default!("a single string")),
         Err(msg) => panic!("{}:\n{}", msg, a)
     }
     match b.parse::<JSON>() {
-        Ok(parsed) => assert_eq!(parsed, json_object!(12345)),
+        Ok(parsed) => assert_eq!(parsed, json_default!(12345)),
         Err(msg) => panic!("{}:\n{}", msg, b)
     }
     match c.parse::<JSON>() {
-        Ok(parsed) => assert_eq!(parsed, json_object!(123.45)),
+        Ok(parsed) => assert_eq!(parsed, json_default!(123.45)),
         Err(msg) => panic!("{}:\n{}", msg, c)
     }
     match d.parse::<JSON>() {
-        Ok(parsed) => assert_eq!(parsed, json_object!(null)),
+        Ok(parsed) => assert_eq!(parsed, json_default!(null)),
         Err(msg) => panic!("{}:\n{}", msg, d)
     }
     match e.parse::<JSON>() {
-        Ok(parsed) => assert_eq!(parsed, json_object!(false)),
+        Ok(parsed) => assert_eq!(parsed, json_default!(false)),
         Err(msg) => panic!("{}:\n{}", msg, e)
-    }
-}
-
-#[test]
-fn it_handles_overflow() {
-    let signed = "9000000000000000000";
-    let unsigned = "10000000000000000000";
-    let float = "20000000000000000000";
-    match signed.parse::<JSON>(){
-        Ok(JSON::Number(n)) => assert!(n.is_int()),
-        _ => panic!("failed with number overflow {}", signed)
-    }
-    match unsigned.parse::<JSON>(){
-        Ok(JSON::Number(n)) => assert!(n.is_uint()),
-        _ => panic!("failed with number overflow {}", unsigned)
-    }
-    match float.parse::<JSON>(){
-        Ok(JSON::Number(n)) => assert!(n.is_float()),
-        _ => panic!("failed with number overflow {}", float)
     }
 }
