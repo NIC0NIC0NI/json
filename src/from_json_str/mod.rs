@@ -6,17 +6,13 @@ mod error;
 
 use std::mem::replace;
 
+pub use self::error::{ParseError, make_parse_error};
 pub use self::parse::State as ParseState;
 pub use self::tokenize::State as TokenizeState;
 pub use self::json_token::JSONToken;
 
 use super::type_adapt::{MakeJSON, JSONObject, JSONArray};
 use super::convert::TryInto;
-
-/// Represents parse error
-pub struct ParseError {
-    description : String
-}
 
 /// Used in self::tokenize
 pub trait TokenConsumer {

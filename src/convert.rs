@@ -1,4 +1,4 @@
-use super::{MakeJSON, JSONObject, JSONArray};
+
 
 /// Will be removed once `std::convert::TryInto` is stabilized
 pub trait TryInto<T>{
@@ -26,9 +26,7 @@ pub trait FromJSONStr {
 
 pub trait FromPremitive<P> {
     fn from_premitive(p: P) -> Self
-        where Self: MakeJSON + Sized,
-              <Self as MakeJSON>::Array : JSONArray<JSON=Self>,
-              <Self as MakeJSON>::Object : JSONObject<JSON=Self>;
+        where Self: Sized;
 }
 
 impl <T,U> TryInto<T> for U

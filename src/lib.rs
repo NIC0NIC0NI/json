@@ -4,6 +4,9 @@ mod from_json_str;
 mod convert;
 mod type_adapt;
 
+use ::std::str::FromStr;
+use ::std::error::Error;
+
 pub use convert::{TryFromIterator, FromJSONStr, FromPremitive};
 pub use from_json_str::ParseError;
 pub use json_object::{DefaultJSON, PreservingJSON};
@@ -20,6 +23,8 @@ type Tokenizer<JSON> = TokenizeState<TokenConsumer<JSON>>;
 
 impl <JSON> TryFromIterator<char> for JSON 
     where JSON: MakeJSON,
+          <JSON as MakeJSON>::Number : FromStr,
+          <<JSON as MakeJSON>::Number as FromStr>::Err : Error + 'static,
           <JSON as MakeJSON>::Array : JSONArray<JSON=JSON>,
           <JSON as MakeJSON>::Object : JSONObject<JSON=JSON>{
     type Err = ParseError;
@@ -31,6 +36,8 @@ impl <JSON> TryFromIterator<char> for JSON
 
 impl <JSON> FromJSONStr for JSON 
     where JSON: MakeJSON,
+          <JSON as MakeJSON>::Number : FromStr,
+          <<JSON as MakeJSON>::Number as FromStr>::Err : Error + 'static,
           <JSON as MakeJSON>::Array : JSONArray<JSON=JSON>,
           <JSON as MakeJSON>::Object : JSONObject<JSON=JSON>{
     type Err = ParseError;

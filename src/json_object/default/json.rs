@@ -26,14 +26,9 @@ impl JSONObject for Map{
 impl MakeJSON for JSON {
     type Array = Vec<JSON>;
     type Object = Map;
-    fn make_number(s: &str) -> Option<Self> {
-        if s.contains('.') {
-            s.parse::<f64>().ok().map(|f| JSON::Number(Number::Float(f)))
-        } else if let Ok(i) = s.parse::<i64>() {
-            Some(JSON::Number(Number::Int(i)))
-        } else {
-            s.parse::<f64>().ok().map(|f| JSON::Number(Number::Float(f)))
-        }
+    type Number = Number;
+    fn make_number(n: Number) -> Self {
+        JSON::Number(n)
     }
     fn make_null() -> Self {
         JSON::Null

@@ -2,7 +2,7 @@
 extern crate json;
 
 fn main() {
-    let json_obj = json_default!(
+    let json_obj = json_preserving!(
         {
             name : "Element",
             items : 

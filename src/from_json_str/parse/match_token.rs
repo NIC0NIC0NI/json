@@ -1,11 +1,16 @@
 //! Describes the state transition
 
+use ::std::str::FromStr;
+use ::std::error::Error;
+
 use super::super::super::type_adapt::{MakeJSON, JSONObject, JSONArray};
-use super::super::JSONToken;
+use super::super::{JSONToken, make_parse_error};
 use super::{NestedLevel, State};
 
 fn token_error<JSON>(token: JSONToken) -> State <JSON> 
     where JSON: MakeJSON,
+          <JSON as MakeJSON>::Number : FromStr,
+          <<JSON as MakeJSON>::Number as FromStr>::Err : Error + 'static,
           <JSON as MakeJSON>::Array : JSONArray<JSON=JSON>,
           <JSON as MakeJSON>::Object : JSONObject<JSON=JSON>{
     State::Error(format!("Unexpected token {}", token).into())
@@ -13,6 +18,8 @@ fn token_error<JSON>(token: JSONToken) -> State <JSON>
 
 fn end_nested<JSON>(mut nested: Vec<NestedLevel<JSON>>, json: JSON) -> State<JSON> 
     where JSON: MakeJSON,
+          <JSON as MakeJSON>::Number : FromStr,
+          <<JSON as MakeJSON>::Number as FromStr>::Err : Error + 'static,
           <JSON as MakeJSON>::Array : JSONArray<JSON=JSON>,
           <JSON as MakeJSON>::Object : JSONObject<JSON=JSON>{
     if let Some(up) = nested.pop() {
@@ -33,6 +40,8 @@ fn end_nested<JSON>(mut nested: Vec<NestedLevel<JSON>>, json: JSON) -> State<JSO
 
 pub fn match_begin<JSON>(token:JSONToken) -> State<JSON> 
     where JSON: MakeJSON,
+          <JSON as MakeJSON>::Number : FromStr,
+          <<JSON as MakeJSON>::Number as FromStr>::Err : Error + 'static,
           <JSON as MakeJSON>::Array : JSONArray<JSON=JSON>,
           <JSON as MakeJSON>::Object : JSONObject<JSON=JSON>{
     match token {
@@ -40,10 +49,10 @@ pub fn match_begin<JSON>(token:JSONToken) -> State<JSON>
         JSONToken::LeftBracket => State::ArrayBegin(Vec::new(), JSONArray::new()),
         JSONToken::StringToken(s) => State::End(JSON::make_string(s)),
         JSONToken::BoolToken(b) => State::End(JSON::make_bool(b)),
-        JSONToken::NumberToken(n) => {
-            match JSON::make_number(&n) {
-                Some(v) => State::End(v),
-                None => token_error(JSONToken::NumberToken(n))
+        JSONToken::NumberToken(s) => {
+            match s.parse::<<JSON as MakeJSON>::Number>() {
+                Ok(n) => State::End(JSON::make_number(n)),
+                Err(e) => State::Error(make_parse_error(e))
             }
         },
         JSONToken::NullToken => State::End(JSON::make_null()),
@@ -55,6 +64,8 @@ pub fn match_object_begin<JSON>(token:JSONToken,
     nested: Vec<NestedLevel<JSON>>, 
     object: <JSON as MakeJSON>::Object) -> State<JSON>
     where JSON: MakeJSON,
+          <JSON as MakeJSON>::Number : FromStr,
+          <<JSON as MakeJSON>::Number as FromStr>::Err : Error + 'static,
           <JSON as MakeJSON>::Array : JSONArray<JSON=JSON>,
           <JSON as MakeJSON>::Object : JSONObject<JSON=JSON>{
     match token {
@@ -68,6 +79,8 @@ pub fn match_object_with_name<JSON>(token:JSONToken,
     nested: Vec<NestedLevel<JSON>>, 
     object: <JSON as MakeJSON>::Object, name: String) -> State<JSON> 
     where JSON: MakeJSON,
+          <JSON as MakeJSON>::Number : FromStr,
+          <<JSON as MakeJSON>::Number as FromStr>::Err : Error + 'static,
           <JSON as MakeJSON>::Array : JSONArray<JSON=JSON>,
           <JSON as MakeJSON>::Object : JSONObject<JSON=JSON>{
     match token {
@@ -81,6 +94,8 @@ pub fn match_object_with_colon<JSON>(token:JSONToken,
     mut object: <JSON as MakeJSON>::Object, 
     name: String) -> State<JSON>
     where JSON: MakeJSON,
+          <JSON as MakeJSON>::Number : FromStr,
+          <<JSON as MakeJSON>::Number as FromStr>::Err : Error + 'static,
           <JSON as MakeJSON>::Array : JSONArray<JSON=JSON>,
           <JSON as MakeJSON>::Object : JSONObject<JSON=JSON>{
     match token {
@@ -97,11 +112,12 @@ pub fn match_object_with_colon<JSON>(token:JSONToken,
             State::ObjectWithValue(nested, object)
         },
         JSONToken::NumberToken(s) => {
-            if let Some(value) = JSON::make_number(&s){
-                object.add(name, value);
-                State::ObjectWithValue(nested, object)
-            } else {
-                State::Error(format!("Unexpected token {}", s).into())
+            match s.parse::<<JSON as MakeJSON>::Number>() {
+                Ok(num) => {
+                    object.add(name, JSON::make_number(num));
+                    State::ObjectWithValue(nested, object)
+                },
+                Err(e) => State::Error(make_parse_error(e))
             }
         },
         JSONToken::LeftBrace => {
@@ -121,6 +137,8 @@ pub fn match_object_with_value<JSON>(token:JSONToken,
     nested: Vec<NestedLevel<JSON>>, 
     object: <JSON as MakeJSON>::Object) -> State<JSON>
     where JSON: MakeJSON,
+          <JSON as MakeJSON>::Number : FromStr,
+          <<JSON as MakeJSON>::Number as FromStr>::Err : Error + 'static,
           <JSON as MakeJSON>::Array : JSONArray<JSON=JSON>,
           <JSON as MakeJSON>::Object : JSONObject<JSON=JSON>{
     match token {
@@ -134,6 +152,8 @@ pub fn match_object_with_comma<JSON>(token:JSONToken,
     nested: Vec<NestedLevel<JSON>>, 
     object: <JSON as MakeJSON>::Object) -> State<JSON>
     where JSON: MakeJSON,
+          <JSON as MakeJSON>::Number : FromStr,
+          <<JSON as MakeJSON>::Number as FromStr>::Err : Error + 'static,
           <JSON as MakeJSON>::Array : JSONArray<JSON=JSON>,
           <JSON as MakeJSON>::Object : JSONObject<JSON=JSON>{
     match token {
@@ -146,6 +166,8 @@ pub fn match_array_begin<JSON>(token:JSONToken,
     mut nested: Vec<NestedLevel<JSON>>, 
     mut array: <JSON as MakeJSON>::Array) -> State<JSON>
     where JSON: MakeJSON,
+          <JSON as MakeJSON>::Number : FromStr,
+          <<JSON as MakeJSON>::Number as FromStr>::Err : Error + 'static,
           <JSON as MakeJSON>::Array : JSONArray<JSON=JSON>,
           <JSON as MakeJSON>::Object : JSONObject<JSON=JSON>{
     match token {
@@ -162,11 +184,12 @@ pub fn match_array_begin<JSON>(token:JSONToken,
             State::ArrayWithValue(nested, array)
         },
         JSONToken::NumberToken(s) => {
-            if let Some(value) = JSON::make_number(&s){
-                array.add(value);
-                State::ArrayWithValue(nested, array)
-            } else {
-                State::Error(format!("Unexpected token {}", s).into())
+            match s.parse::<<JSON as MakeJSON>::Number>() {
+                Ok(num) => {
+                    array.add(JSON::make_number(num));
+                    State::ArrayWithValue(nested, array)
+                },
+                Err(e) => State::Error(make_parse_error(e))
             }
         },
         JSONToken::LeftBrace => {
@@ -186,6 +209,8 @@ pub fn match_array_with_value<JSON>(token:JSONToken,
     nested: Vec<NestedLevel<JSON>>, 
     array: <JSON as MakeJSON>::Array) -> State<JSON>
     where JSON: MakeJSON,
+          <JSON as MakeJSON>::Number : FromStr,
+          <<JSON as MakeJSON>::Number as FromStr>::Err : Error + 'static,
           <JSON as MakeJSON>::Array : JSONArray<JSON=JSON>,
           <JSON as MakeJSON>::Object : JSONObject<JSON=JSON>{
     match token {
@@ -199,6 +224,8 @@ pub fn match_array_with_comma<JSON>(token:JSONToken,
     mut nested: Vec<NestedLevel<JSON>>, 
     mut array: <JSON as MakeJSON>::Array) -> State<JSON>
     where JSON: MakeJSON,
+          <JSON as MakeJSON>::Number : FromStr,
+          <<JSON as MakeJSON>::Number as FromStr>::Err : Error + 'static + 'static,
           <JSON as MakeJSON>::Array : JSONArray<JSON=JSON>,
           <JSON as MakeJSON>::Object : JSONObject<JSON=JSON>{
     match token {
@@ -215,11 +242,12 @@ pub fn match_array_with_comma<JSON>(token:JSONToken,
             State::ArrayWithValue(nested, array)
         },
         JSONToken::NumberToken(s) => {
-            if let Some(value) = JSON::make_number(&s){
-                array.add(value);
-                State::ArrayWithValue(nested, array)
-            } else {
-                State::Error(format!("Unexpected token {}", s).into())
+            match s.parse::<<JSON as MakeJSON>::Number>() {
+                Ok(num) => {
+                    array.add(JSON::make_number(num));
+                    State::ArrayWithValue(nested, array)
+                },
+                Err(e) => State::Error(make_parse_error(e))
             }
         },
         JSONToken::LeftBrace => {
@@ -236,6 +264,8 @@ pub fn match_array_with_comma<JSON>(token:JSONToken,
 
 pub fn match_end<JSON>(token: JSONToken) -> State<JSON>
     where JSON: MakeJSON,
+          <JSON as MakeJSON>::Number : FromStr,
+          <<JSON as MakeJSON>::Number as FromStr>::Err : Error + 'static,
           <JSON as MakeJSON>::Array : JSONArray<JSON=JSON>,
           <JSON as MakeJSON>::Object : JSONObject<JSON=JSON>{
     token_error(token)

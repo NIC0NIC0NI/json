@@ -5,10 +5,7 @@ use super::super::FromJSONStr;
 use ::std::collections::HashMap;
 use std::str::FromStr;
 
-#[derive(Debug, Clone, Copy)]
-pub enum Number {
-    Int(i64), Float(f64)
-}
+pub use self::number::Number;
 
 pub type Map = HashMap<String, DefaultJSON>;
 

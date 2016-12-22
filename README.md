@@ -57,11 +57,13 @@ However, to test the correctness of the tokenizing, `Vec<JSONToken>` should be c
 
 ## Issues
 
-### Comprehensible Errors
+### Comprehensible Error Messages and Expressive Error Types
 It does check the syntax and will return error if it finds something wrong. But the error object contains nonthing but an error message, and the message is not so comprehensible. 
 
+The Error is represented as a simple string or `std::num::ParseIntError` / `std::num::ParseFloatError`. More error types should be used to represente errors.
+
 ### Generic Objects
-Generic objects are supported. Traits need to be simplified.
+Generic objects are supported. Traits need to be simplified and it will be tried to do things in `examples/customize.rs` with macros. Constructing customized objects needs user to handle syntax error on number literals with their own number type implementing `std::str::FromStr`.
 
 ### Stable Rust
 Stable version of Rust is used, therefore even basic traits like `TryFrom` and `TryInto` are defined by myself. These will be removed once standard library is stabilized.

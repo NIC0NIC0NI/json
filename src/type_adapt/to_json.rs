@@ -1,41 +1,43 @@
-use super::{MakeJSON, JSONObject, JSONArray};
+use super::{MakeJSON};
 use super::super::convert::{FromPremitive};
 
-impl <'a, JSON> FromPremitive<&'a str > for JSON
-    where JSON: MakeJSON,
-          <JSON as MakeJSON>::Array : JSONArray<JSON=JSON>,
-          <JSON as MakeJSON>::Object : JSONObject<JSON=JSON>{
-    fn from_premitive(s: &'a str) -> Self {
-        <JSON as MakeJSON>::make_string(s.to_string())
-    }
-}
-
-impl <JSON> FromPremitive<String> for JSON
-    where JSON: MakeJSON,
-          <JSON as MakeJSON>::Array : JSONArray<JSON=JSON>,
-          <JSON as MakeJSON>::Object : JSONObject<JSON=JSON>{
-    fn from_premitive(s: String) -> Self {
-        <JSON as MakeJSON>::make_string(s)
-    }
-}
+use ::std::error::Error;
+use ::std::str::FromStr;
 
 impl <JSON> FromPremitive<bool> for JSON
-    where JSON: MakeJSON,
-          <JSON as MakeJSON>::Array : JSONArray<JSON=JSON>,
-          <JSON as MakeJSON>::Object : JSONObject<JSON=JSON>{
+    where JSON: MakeJSON {
     fn from_premitive(b: bool) -> Self {
         <JSON as MakeJSON>::make_bool(b)
     }
 }
 
+impl <JSON> FromPremitive<String> for JSON
+    where JSON: MakeJSON {
+    fn from_premitive(s: String) -> Self {
+        <JSON as MakeJSON>::make_string(s)
+    }
+}
+
+impl <'a, JSON> FromPremitive<&'a str> for JSON
+    where JSON: MakeJSON {
+    fn from_premitive(s: &'a str) -> Self {
+        <JSON as MakeJSON>::make_string(s.to_string())
+    }
+}
+
+
+
 macro_rules! register_numeric_type {
     ($t:ty) => {
         impl <JSON> FromPremitive<$t> for JSON
             where JSON: MakeJSON,
-                <JSON as MakeJSON>::Array : JSONArray<JSON=JSON>,
-                <JSON as MakeJSON>::Object : JSONObject<JSON=JSON>{
+                <JSON as MakeJSON>::Number : FromStr,
+                <JSON as MakeJSON>::Number : FromPremitive<$t>,
+                <<JSON as MakeJSON>::Number as FromStr>::Err: Error + 'static{
             fn from_premitive(n: $t) -> JSON {
-                <JSON as MakeJSON>::make_number(&n.to_string()).unwrap()
+                <JSON as MakeJSON>::make_number(
+                    <<JSON as MakeJSON>::Number as FromPremitive<$t>>::from_premitive(n)
+                )
             }
         }
     }

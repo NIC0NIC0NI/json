@@ -2,7 +2,6 @@
 extern crate json;
 
 use json::{MakeJSON, JSONObject, JSONArray, FromJSONStr};
-use std::str::FromStr;
 
 #[derive(Debug, Default)]
 struct MyObject {
@@ -26,6 +25,8 @@ fn main(){
     }
 }
 
+// 
+
 // implement JSONArray for Vec<i32> won't compile
 // because both JSONArray and Vec<i32> are not inside the crate
 struct ArrayWrapper(Vec<i32>); 
@@ -44,14 +45,19 @@ impl JSONObject for MyObject {
         MyObject::default()
     }
     fn add(&mut self, name: String, value: Self::JSON){
-        if name == "name" {
-            if let MyObjectMaker::String(s) = value {
-                self.name = s;
+        let name_str: &str = &name;
+        match name_str {
+            "name" => {
+                if let MyObjectMaker::String(s) = value {
+                    self.name = s;
+                }
+            },
+            "numbers" => {
+                if let MyObjectMaker::IntArray(array) = value {
+                    self.numbers = array.0;
+                }
             }
-        } else if name == "numbers" {
-            if let MyObjectMaker::IntArray(array) = value {
-                self.numbers = array.0;
-            }
+            _ => {}
         }
     }
 }
@@ -71,17 +77,9 @@ impl JSONArray for ArrayWrapper {
 impl MakeJSON for MyObjectMaker {
     type Array = ArrayWrapper;
     type Object = MyObject;
-    
-    // Number types are chosen by user.
-    // They handle overflows.
-    // Currently they must also handle syntax error on number literals
-    // Which may be fixed in later versions
-    fn make_number(s: &str) -> Option<Self> {
-        if let Ok(i) = i32::from_str(s) {
-            Some(MyObjectMaker::Int(i))
-        } else {
-            None
-        }
+    type Number = i32;
+    fn make_number(i: i32) -> Self {
+        MyObjectMaker::Int(i)
     }
     fn make_null() -> Self {
         MyObjectMaker::Err

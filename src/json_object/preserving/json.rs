@@ -26,8 +26,9 @@ impl JSONObject for Vec<(String, JSON)>{
 impl MakeJSON for JSON {
     type Array = Vec<JSON>;
     type Object = Vec<(String, JSON)>;
-    fn make_number(s: &str) -> Option<Self> {
-        Some(JSON::Number(s.to_string()))
+    type Number = String;
+    fn make_number(s: String) -> Self {
+        JSON::Number(s)
     }
     fn make_null() -> Self {
         JSON::Null

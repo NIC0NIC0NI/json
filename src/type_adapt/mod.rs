@@ -1,5 +1,8 @@
 mod to_json;
 
+use ::std::str::FromStr;
+use ::std::error::Error;
+
 pub trait JSONArray {
     type JSON;
     fn new() -> Self;
@@ -17,7 +20,10 @@ pub trait JSONObject {
 pub trait MakeJSON {
     type Array;
     type Object;
-    fn make_number(s: &str) -> Option<Self> where Self:Sized;
+    type Number;
+    fn make_number(n: Self::Number) -> Self
+        where Self::Number: FromStr,
+              <Self::Number as FromStr>::Err: Error + 'static;
     fn make_null() -> Self;
     fn make_string(s: String) -> Self;
     fn make_bool(b: bool) -> Self;
