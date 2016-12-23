@@ -63,7 +63,25 @@ It does check the syntax and will return error if it finds something wrong. But 
 The Error is represented as a simple string or `std::num::ParseIntError` / `std::num::ParseFloatError`. More error types should be used to represente errors.
 
 ### Generic Objects
-Generic objects are supported. Traits need to be simplified and it will be tried to do things in `examples/customize.rs` with macros. Constructing customized objects needs user to handle syntax error on number literals with their own number type implementing `std::str::FromStr`.
+Generic objects are supported. Traits need to be simplified and it will be tried to do things in `examples/customize.rs` with macros. Constructing customized objects needs user-defined implementation of `std::str::FromStr` to handle syntax error on number literals.
+
+#### Static vs Dynamic
+General JSON is represented by a tree with dynamic depth. JSON values are uniform-typed, which restrict the nested arrays and objects to hold the same type.
+
+But user-defined structure can be static, with finite nesting depth, different types representing a same JSON type. 
+
+If we modify the example `customized.rs`, JSON object is represented by both `MyObject` and `Attribute`, which makes user-defined parsing requires much more boilplate codes.
+```rust
+struct MyObject {
+    name: String,
+    numbers: Vec<i32>,
+    attributes: Vec<Attribute>
+}
+struct Attribute {
+    name: String,
+    value: String
+}
+```
 
 ### Stable Rust
 Stable version of Rust is used, therefore even basic traits like `TryFrom` and `TryInto` are defined by myself. These will be removed once standard library is stabilized.
