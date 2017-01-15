@@ -5,8 +5,8 @@ mod test;
 use ::std::str::FromStr;
 use ::std::error::Error;
 
-use super::{TokenConsumer, JSONToken, ParseError};
-use super::super::type_adapt::{MakeJSON, JSONObject, JSONArray};
+use super::{TokenConsumer, JSONToken, ParseError, NestedLevel};
+use super::super::type_adapt::MakeJSON;
 use super::super::convert::TryFrom;
 
 use self::match_token::{match_begin, match_object_begin, match_object_with_name};
@@ -14,22 +14,9 @@ use self::match_token::{match_object_with_value, match_object_with_comma};
 use self::match_token::{match_array_with_value, match_array_with_comma};
 use self::match_token::{match_end, match_array_begin, match_object_with_colon};
 
-pub enum NestedLevel <JSON> 
-    where JSON : MakeJSON,
-          <JSON as MakeJSON>::Number : FromStr,
-          <<JSON as MakeJSON>::Number as FromStr>::Err : Error + 'static,
-          <JSON as MakeJSON>::Array : JSONArray<JSON=JSON>,
-          <JSON as MakeJSON>::Object : JSONObject<JSON=JSON>{
-    Array(<JSON as MakeJSON>::Array), 
-    Object(<JSON as MakeJSON>::Object, String)
-}
-
 pub enum State <JSON> 
     where JSON : MakeJSON,
-          <JSON as MakeJSON>::Number : FromStr,
-          <<JSON as MakeJSON>::Number as FromStr>::Err : Error + 'static,
-          <JSON as MakeJSON>::Array : JSONArray<JSON=JSON>,
-          <JSON as MakeJSON>::Object : JSONObject<JSON=JSON>{
+          <<JSON as MakeJSON>::Number as FromStr>::Err : Error + 'static{
     Begin,
     ObjectBegin(Vec<NestedLevel<JSON>>,
          <JSON as MakeJSON>::Object),
@@ -53,10 +40,7 @@ pub enum State <JSON>
 
 impl <JSON> State <JSON> 
     where JSON: MakeJSON,
-          <JSON as MakeJSON>::Number : FromStr,
-          <<JSON as MakeJSON>::Number as FromStr>::Err : Error + 'static,
-          <JSON as MakeJSON>::Array : JSONArray<JSON=JSON>,
-          <JSON as MakeJSON>::Object : JSONObject<JSON=JSON>{
+          <<JSON as MakeJSON>::Number as FromStr>::Err : Error{
     fn parse_token(self, token: JSONToken) -> Self{
         match self {
             State::Begin => 
@@ -86,10 +70,7 @@ impl <JSON> State <JSON>
 
 impl <JSON> TokenConsumer for State <JSON> 
     where JSON: MakeJSON,
-          <JSON as MakeJSON>::Number : FromStr,
-          <<JSON as MakeJSON>::Number as FromStr>::Err : Error + 'static,
-          <JSON as MakeJSON>::Array : JSONArray<JSON=JSON>,
-          <JSON as MakeJSON>::Object : JSONObject<JSON=JSON>{
+          <<JSON as MakeJSON>::Number as FromStr>::Err : Error{
     fn new() -> Self {
         State::Begin
     }
@@ -100,10 +81,7 @@ impl <JSON> TokenConsumer for State <JSON>
 
 impl <JSON> Default for State <JSON> 
     where JSON: MakeJSON,
-          <JSON as MakeJSON>::Number : FromStr,
-          <<JSON as MakeJSON>::Number as FromStr>::Err : Error + 'static,
-          <JSON as MakeJSON>::Array : JSONArray<JSON=JSON>,
-          <JSON as MakeJSON>::Object : JSONObject<JSON=JSON>{
+          <<JSON as MakeJSON>::Number as FromStr>::Err : Error{
     fn default() -> Self {
         State::Begin
     }
@@ -111,10 +89,7 @@ impl <JSON> Default for State <JSON>
 
 impl <JSON> TryFrom<State<JSON>> for JSON 
     where JSON: MakeJSON,
-          <JSON as MakeJSON>::Number : FromStr,
-          <<JSON as MakeJSON>::Number as FromStr>::Err : Error + 'static,
-          <JSON as MakeJSON>::Array : JSONArray<JSON=JSON>,
-          <JSON as MakeJSON>::Object : JSONObject<JSON=JSON>{
+          <<JSON as MakeJSON>::Number as FromStr>::Err : Error{
     type Err = ParseError;
     fn try_from(s: State<JSON>) -> Result<JSON, Self::Err> {
         match s {

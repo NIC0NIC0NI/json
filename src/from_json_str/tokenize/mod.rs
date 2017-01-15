@@ -2,6 +2,9 @@ mod match_char;
 #[cfg(test)]
 mod test;
 
+use ::std::str::FromStr;
+use ::std::error::Error;
+
 use super::{TokenConsumer, Tokenizer};
 use super::ParseError as TokenizeError;
 use super::super::convert::{TryFrom, TryInto};
@@ -43,7 +46,8 @@ impl <I, JSON> TryFrom<State<I>> for JSON
     where I: TryInto<JSON, Err=TokenizeError>,
           JSON: MakeJSON,
           <JSON as MakeJSON>::Array : JSONArray<JSON=JSON>,
-          <JSON as MakeJSON>::Object : JSONObject<JSON=JSON>{
+          <JSON as MakeJSON>::Object : JSONObject<JSON=JSON>,
+          <<JSON as MakeJSON>::Number as FromStr>::Err: Error + 'static{
     type Err = TokenizeError;
     fn try_from(s: State<I>) -> Result<JSON, Self::Err> {
         match s {

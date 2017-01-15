@@ -3,13 +3,17 @@ mod json_token;
 mod tokenize;
 mod parse;
 mod error;
+mod nested;
 
 use std::mem::replace;
+use ::std::str::FromStr;
+use ::std::error::Error;
 
 pub use self::error::{ParseError, make_parse_error};
-pub use self::parse::State as ParseState;
+pub use self::parse::{State as ParseState};
 pub use self::tokenize::State as TokenizeState;
 pub use self::json_token::JSONToken;
+pub use self::nested::NestedLevel;
 
 use super::type_adapt::{MakeJSON, JSONObject, JSONArray};
 use super::convert::TryInto;
@@ -43,6 +47,11 @@ pub fn from_char_stream<JSON, T, I>(iter: I) -> Result<JSON, ParseError>
           I:Iterator<Item=char>, 
           JSON: MakeJSON,
           <JSON as MakeJSON>::Array : JSONArray<JSON=JSON>,
-          <JSON as MakeJSON>::Object : JSONObject<JSON=JSON>{
+          <JSON as MakeJSON>::Object : JSONObject<JSON=JSON>,
+          <<JSON as MakeJSON>::Number as FromStr>::Err: Error{
     iter.fold(T::new(), T::tokenize).tokenize(' ').try_into()
 }
+
+
+
+

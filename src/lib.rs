@@ -8,7 +8,7 @@ use ::std::str::FromStr;
 use ::std::error::Error;
 
 pub use convert::{TryFromIterator, FromJSONStr, FromPremitive};
-pub use from_json_str::ParseError;
+pub use from_json_str::{ParseError, NestedLevel};
 pub use json_object::{DefaultJSON, PreservingJSON};
 pub use type_adapt::{MakeJSON, JSONObject, JSONArray};
 use from_json_str::{TokenizeState, ParseState, from_char_stream};
@@ -18,15 +18,9 @@ type TokenConsumer<JSON> = Box<ParseState<JSON>>;
 /// Boxing this makes more overhead than benefit
 type Tokenizer<JSON> = TokenizeState<TokenConsumer<JSON>>;
 
-
-
-
 impl <JSON> TryFromIterator<char> for JSON 
     where JSON: MakeJSON,
-          <JSON as MakeJSON>::Number : FromStr,
-          <<JSON as MakeJSON>::Number as FromStr>::Err : Error + 'static,
-          <JSON as MakeJSON>::Array : JSONArray<JSON=JSON>,
-          <JSON as MakeJSON>::Object : JSONObject<JSON=JSON>{
+          <<JSON as MakeJSON>::Number as FromStr>::Err : Error + 'static{
     type Err = ParseError;
     fn try_from_iter<I>(iter: I) -> Result<Self, Self::Err>
          where I: IntoIterator<Item=char>{
@@ -36,10 +30,7 @@ impl <JSON> TryFromIterator<char> for JSON
 
 impl <JSON> FromJSONStr for JSON 
     where JSON: MakeJSON,
-          <JSON as MakeJSON>::Number : FromStr,
-          <<JSON as MakeJSON>::Number as FromStr>::Err : Error + 'static,
-          <JSON as MakeJSON>::Array : JSONArray<JSON=JSON>,
-          <JSON as MakeJSON>::Object : JSONObject<JSON=JSON>{
+          <<JSON as MakeJSON>::Number as FromStr>::Err : Error + 'static{
     type Err = ParseError;
     fn from_json_str(s: &str) -> Result<Self, Self::Err> {
         from_char_stream::<JSON,Tokenizer<JSON>,_>(s.chars())

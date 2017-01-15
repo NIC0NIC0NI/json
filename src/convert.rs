@@ -18,12 +18,15 @@ pub trait TryFromIterator<Item>{
          where I: IntoIterator<Item=Item>, Self: Sized;
 }
 
+/// Automatically implemented if implemented `JSONArray`,`JSONObject` and `MakeJSON`
 pub trait FromJSONStr {
     type Err;
     fn from_json_str(s: &str) -> Result<Self, Self::Err>
         where Self: Sized;
 }
 
+/// Implement `FromJSONStr<(Number)>`, `FromJSONStr<&str>`
+/// and `FromJSONStr<bool>` to use `json_object` macro 
 pub trait FromPremitive<P> {
     fn from_premitive(p: P) -> Self
         where Self: Sized;

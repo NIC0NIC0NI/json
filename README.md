@@ -65,23 +65,10 @@ The Error is represented as a simple string or `std::num::ParseIntError` / `std:
 ### Generic Objects
 Generic objects are supported. Traits need to be simplified and it will be tried to do things in `examples/customize.rs` with macros. Constructing customized objects needs user-defined implementation of `std::str::FromStr` to handle syntax error on number literals.
 
-#### Static vs Dynamic
+#### Generic Objects: Static vs Dynamic
 General JSON is represented by a tree with dynamic depth. JSON values are uniform-typed, which restrict the nested arrays and objects to hold the same type.
 
-But user-defined structure can be static, with finite nesting depth, different types representing a same JSON type. 
-
-If we modify the example `customized.rs`, JSON object is represented by both `MyObject` and `Attribute`, which makes user-defined parsing requires much more boilplate codes.
-```rust
-struct MyObject {
-    name: String,
-    numbers: Vec<i32>,
-    attributes: Vec<Attribute>
-}
-struct Attribute {
-    name: String,
-    value: String
-}
-```
+But user-defined structure can be static, with finite nesting depth, different types representing a same JSON type. Therefore, `NestedLevel` is exposed in a parameter `nested: &Vec<NestedLevel<JSON>>`, which is aimed to expose the internal structure.
 
 ### Stable Rust
 Stable version of Rust is used, therefore even basic traits like `TryFrom` and `TryInto` are defined by myself. These will be removed once standard library is stabilized.
