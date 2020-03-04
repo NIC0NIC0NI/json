@@ -45,27 +45,27 @@ impl Display for JSON {
             &JSON::String(ref s) => write!(f, "\"{}\"", s),
             &JSON::Object(ref object) => {
                 let mut first = true;
-                try!(write!(f, "{{"));
+                write!(f, "{{")?;
                 for (name, value) in object {
                     if first {
                         first = false;
                     } else {
-                        try!(write!(f, ","));
+                        write!(f, ",")?;
                     }
-                    try!(write!(f, "\"{}\":{}", name, value));
+                    write!(f, "\"{}\":{}", name, value)?;
                 }
                 write!(f, "}}")
             },
             &JSON::Array(ref array) => {
                 let mut first = true;
-                try!(write!(f, "["));
+                write!(f, "[")?;
                 for item in array {
                     if first {
                         first = false;
                     } else {
-                        try!(write!(f, ","));
+                        write!(f, ",")?;
                     }
-                    try!(write!(f, "{}", item));
+                    write!(f, "{}", item)?;
                 }
                 write!(f, "]")
             },

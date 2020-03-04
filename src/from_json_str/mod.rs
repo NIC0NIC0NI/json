@@ -28,9 +28,9 @@ impl <TC:TokenConsumer+Default> TokenConsumer for Box<TC> {
         Box::new(TC::new())
     }
     fn consume(mut self, token: JSONToken) -> Self {
-        /// Original code:
-        /// ```Box::new((*self).parse_token(token))```
-        /// optimized for memory reuse
+        // Original code:
+        // ```Box::new((*self).parse_token(token))```
+        // optimized for memory reuse
         let placeholder = replace(&mut(*self), TC::default());  // use default to minimize construct overhead
         *self = placeholder.consume(token);
         self
